@@ -90,8 +90,13 @@ const AccordionSection = memo(
     itemCount = 0,
     expandedSections,
     toggleSection,
+    className = "",
   }) => (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded  overflow-hidden transition-all duration-200">
+    <div
+      className={`bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded transition-all duration-200 ${
+        expandedSections[section] ? "overflow-visible" : "overflow-hidden"
+      } ${className}`}
+    >
       <div
         className={`p-2 flex items-center justify-between cursor-pointer select-none transition-colors ${expandedSections[section] ? "bg-slate-50/80 dark:bg-slate-800/50" : "hover:bg-slate-50/50 dark:hover:bg-slate-800/30"}`}
         onClick={() => toggleSection(section)}
@@ -114,7 +119,7 @@ const AccordionSection = memo(
         </div>
       </div>
       {expandedSections[section] && (
-        <div className="p-2 md:p-2 border-t border-slate-100 dark:border-slate-800 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="p-2 md:p-2 border-t border-slate-100 dark:border-slate-800 animate-in fade-in duration-200">
           {children}
         </div>
       )}
@@ -578,25 +583,6 @@ const CreateBOMPage = () => {
         const { rootCard, designEngineering } =
           await loadRootCardContext(rootCardId);
 
-        const preProductionStatuses = [
-          'pending',
-          'RC_CREATED',
-          'DESIGN_IN_PROGRESS',
-          'QUALITY_QAP_PENDING',
-          'DESIGN_QAP_REVIEW',
-          'DESIGN_APPROVED'
-        ];
-        if (rootCard.status && preProductionStatuses.includes(rootCard.status)) {
-          Swal.fire({
-            icon: "warning",
-            title: "Validation Error",
-            text: "This Route Card has not been sent to the Production Department by the Design Engineer yet. You cannot create a BOM for it.",
-          });
-          setBomData(initialBOMState);
-          setLoadingMaterials(false);
-          return;
-        }
-
         const designData = designEngineering || { bomData: [], operations: [] };
 
         // Auto-fill product info
@@ -733,16 +719,7 @@ const CreateBOMPage = () => {
   );
 
   const rootCardOptions = useMemo(() => {
-    const preProductionStatuses = [
-      'pending',
-      'RC_CREATED',
-      'DESIGN_IN_PROGRESS',
-      'QUALITY_QAP_PENDING',
-      'DESIGN_QAP_REVIEW',
-      'DESIGN_APPROVED'
-    ];
     return (Array.isArray(rootCards) ? rootCards : [])
-      .filter((rc) => rc.status && !preProductionStatuses.includes(rc.status))
       .map((rc) => ({
         label: rc.project_name || rc.customer || rc.title || "N/A",
         value: rc.id,
@@ -757,27 +734,6 @@ const CreateBOMPage = () => {
         text: "Please select a Route Card",
       });
       return;
-    }
-
-    // Check status of selected route card
-    const selectedRootCard = rootCards.find(rc => rc.id === bomData.productInfo.rootCardId);
-    if (selectedRootCard) {
-      const preProductionStatuses = [
-        'pending',
-        'RC_CREATED',
-        'DESIGN_IN_PROGRESS',
-        'QUALITY_QAP_PENDING',
-        'DESIGN_QAP_REVIEW',
-        'DESIGN_APPROVED'
-      ];
-      if (preProductionStatuses.includes(selectedRootCard.status)) {
-        Swal.fire({
-          icon: "error",
-          title: "Validation Error",
-          text: "This Route Card has not been sent to the Production Department by the Design Engineer yet. You cannot create a BOM for it.",
-        });
-        return;
-      }
     }
 
     try {
@@ -874,6 +830,7 @@ const CreateBOMPage = () => {
             section="product"
             expandedSections={expandedSections}
             toggleSection={toggleSection}
+            className="relative z-30"
           >
             <div className="grid grid-cols-1 md:grid-cols-3  gap-3">
               <div className="">
@@ -936,6 +893,7 @@ const CreateBOMPage = () => {
             itemCount={bomData.materials.length}
             expandedSections={expandedSections}
             toggleSection={toggleSection}
+            className="relative z-10"
           >
             {!isRootCardSelected ? (
               <div className="text-center py-12 bg-slate-50/50 dark:bg-slate-800/20 rounded border-2 border-dashed border-slate-200 dark:border-slate-800">

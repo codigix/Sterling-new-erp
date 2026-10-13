@@ -130,7 +130,7 @@ const SearchableSelect = ({
   };
 
   const renderDropdownContent = () => (
-    <div className="overflow-y-auto flex-1 py-1 modal-body-scroll">
+    <div className="max-h-60 overflow-y-auto py-1 modal-body-scroll bg-white dark:bg-slate-800">
       {filteredOptions.length > 0 ? (
         filteredOptions.map((option, index) => (
           <div
@@ -182,7 +182,7 @@ const SearchableSelect = ({
   );
 
   return (
-    <div className={`relative ${className}`} ref={wrapperRef}>
+    <div className={`relative ${isOpen ? 'z-50' : ''} ${className}`} ref={wrapperRef}>
       {label && (
         <label htmlFor={inputId} className="block text-xs text-slate-900 dark:text-slate-100 mb-1">
           {label}
@@ -248,7 +248,7 @@ const SearchableSelect = ({
             <div 
               ref={dropdownRef}
               style={dropdownStyle}
-              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-2xl max-h-60 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-100"
+              className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-2xl overflow-hidden z-[100050] animate-in fade-in zoom-in-95 duration-100"
             >
               {renderDropdownContent()}
             </div>,
@@ -257,7 +257,7 @@ const SearchableSelect = ({
         ) : (
           <div 
             ref={dropdownRef}
-            className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-2xl max-h-60 overflow-hidden flex flex-col z-[500] animate-in fade-in duration-100"
+            className="absolute left-0 right-0 top-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-2xl overflow-hidden z-[500] animate-in fade-in duration-100"
           >
             {renderDropdownContent()}
           </div>

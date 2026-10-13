@@ -35,10 +35,10 @@ const DesignQAPReviewPage = () => {
         const response = await axios.get('/root-cards', {
           params: { includeSteps: true }
         });
-        const excludedStatuses = ['pending', 'RC_CREATED', 'DESIGN_IN_PROGRESS', 'QUALITY_QAP_PENDING'];
-        const relevant = (response.data.rootCards || []).filter(rc => 
-          !excludedStatuses.includes(rc.status)
-        );
+        const relevant = (response.data.rootCards || []).filter(rc => {
+          const qapStatus = rc.qap_status || rc.status;
+          return qapStatus === 'DESIGN_QAP_REVIEW' || qapStatus === 'APPROVED' || !['pending', 'RC_CREATED', 'DESIGN_IN_PROGRESS', 'QUALITY_QAP_PENDING'].includes(rc.status);
+        });
         setRootCards(relevant);
       } catch (error) {
         console.error('Error fetching root cards:', error);
@@ -146,8 +146,9 @@ const DesignQAPReviewPage = () => {
       key: 'status',
       label: 'Status',
       sortable: true,
-      render: (value) => (
-        value === 'DESIGN_QAP_REVIEW' ? (
+      render: (value, rc) => {
+        const isAwaitingReview = rc.qap_status === 'DESIGN_QAP_REVIEW' || value === 'DESIGN_QAP_REVIEW';
+        return isAwaitingReview ? (
           <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px]  bg-amber-50 text-amber-700 border border-amber-100 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800">
             <AlertCircle size={12} />
             Ready for Production
@@ -157,8 +158,8 @@ const DesignQAPReviewPage = () => {
             <CheckCircle size={12} />
             Sent to Production
           </span>
-        )
-      )
+        );
+      }
     },
     {
       key: 'actions',
@@ -174,7 +175,7 @@ const DesignQAPReviewPage = () => {
             <Eye size={18} />
           </button>
           
-          {rc.status === 'DESIGN_QAP_REVIEW' && (
+          {(rc.qap_status === 'DESIGN_QAP_REVIEW' || rc.status === 'DESIGN_QAP_REVIEW') && (
             <button
               onClick={() => handleSendToProduction(rc)}
               disabled={actionLoading}

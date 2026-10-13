@@ -36,20 +36,6 @@ const createBOM = async (req, res) => {
       const [cards] = await connection.query('SELECT id, status FROM root_cards WHERE id = ? OR public_id = ?', [effectiveRootCardId, effectiveRootCardId]);
       if (cards.length > 0) {
         effectiveRootCardId = cards[0].id;
-        const preProductionStatuses = [
-          'pending',
-          'RC_CREATED',
-          'DESIGN_IN_PROGRESS',
-          'QUALITY_QAP_PENDING',
-          'DESIGN_QAP_REVIEW',
-          'DESIGN_APPROVED'
-        ];
-        if (preProductionStatuses.includes(cards[0].status)) {
-          await connection.rollback();
-          return res.status(400).json({
-            message: 'This Route Card has not been sent to the Production Department by the Design Engineer yet. You cannot create a BOM for it.'
-          });
-        }
       } else {
         await connection.rollback();
         return res.status(404).json({ message: 'Route Card not found' });
@@ -216,20 +202,6 @@ const updateBOM = async (req, res) => {
       const [cards] = await connection.query('SELECT id, status FROM root_cards WHERE id = ? OR public_id = ?', [effectiveRootCardId, effectiveRootCardId]);
       if (cards.length > 0) {
         effectiveRootCardId = cards[0].id;
-        const preProductionStatuses = [
-          'pending',
-          'RC_CREATED',
-          'DESIGN_IN_PROGRESS',
-          'QUALITY_QAP_PENDING',
-          'DESIGN_QAP_REVIEW',
-          'DESIGN_APPROVED'
-        ];
-        if (preProductionStatuses.includes(cards[0].status)) {
-          await connection.rollback();
-          return res.status(400).json({
-            message: 'This Route Card has not been sent to the Production Department by the Design Engineer yet. You cannot create a BOM for it.'
-          });
-        }
       } else {
         await connection.rollback();
         return res.status(404).json({ message: 'Route Card not found' });

@@ -56,7 +56,7 @@ const DashboardHome = () => {
       const totalReports = reportsRes.data?.length || 0;
       const recentReports = reportsRes.data?.slice(0, 5) || [];
       
-      const pendingQAPs = (rootCardsRes.data.rootCards || []).filter(rc => rc.status === 'QUALITY_QAP_PENDING').length;
+      const pendingQAPs = (rootCardsRes.data.rootCards || []).filter(rc => rc.qap_status === 'QUALITY_QAP_PENDING' || rc.status === 'QUALITY_QAP_PENDING').length;
 
       setStats({
         pendingGRNs,

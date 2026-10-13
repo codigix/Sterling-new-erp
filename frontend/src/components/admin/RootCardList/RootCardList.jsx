@@ -397,7 +397,7 @@ const RootCardList = ({
               </button>
             )}
 
-            {!isAccountantView && onSendToProduction && (row.status === 'DESIGN_QAP_REVIEW' || row.status === 'DESIGN_APPROVED') && (
+            {!isAccountantView && onSendToProduction && (row.qap_status === 'DESIGN_QAP_REVIEW' || row.status === 'DESIGN_QAP_REVIEW' || row.status === 'DESIGN_APPROVED') && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -409,7 +409,7 @@ const RootCardList = ({
                 <Send className="w-3 h-3 text-green-600" />
               </button>
             )}
-            {!isAccountantView && onSendToQuality && row.status === 'DESIGN_IN_PROGRESS' && (
+            {!isAccountantView && onSendToQuality && (row.status === 'DESIGN_IN_PROGRESS' || (!row.qap_status || row.qap_status === 'NOT_STARTED')) && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -421,7 +421,7 @@ const RootCardList = ({
                 <Send className="w-3 h-3 text-amber-600" />
               </button>
             )}
-            {!isAccountantView && onReturnToDesignEngineering && row.status === 'QUALITY_QAP_PENDING' && (
+            {!isAccountantView && onReturnToDesignEngineering && (row.qap_status === 'QUALITY_QAP_PENDING' || row.status === 'QUALITY_QAP_PENDING') && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();
@@ -433,7 +433,7 @@ const RootCardList = ({
                 <Send className="w-3 h-3 text-blue-600" />
               </button>
             )}
-            {!isAccountantView && onUploadQAP && row.status === 'QUALITY_QAP_PENDING' && (
+            {!isAccountantView && onUploadQAP && (row.qap_status === 'QUALITY_QAP_PENDING' || row.status === 'QUALITY_QAP_PENDING') && (
               <button
                 onClick={(e) => {
                   e.stopPropagation();

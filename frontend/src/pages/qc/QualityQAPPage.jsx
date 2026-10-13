@@ -174,7 +174,9 @@ const QualityQAPPage = () => {
         let classes = 'bg-slate-50 text-slate-400 border-slate-100';
 
         // QAP Specific Workflow Statuses
-        if (status === 'QUALITY_QAP_PENDING') {
+        const effectiveStatus = (row.qap_status && row.qap_status !== 'NOT_STARTED') ? row.qap_status : status;
+
+        if (effectiveStatus === 'QUALITY_QAP_PENDING') {
           if (hasFiles) {
             label = 'UPLOADED - PENDING FINALIZE';
             classes = 'bg-blue-50 text-blue-600 border-blue-200';
@@ -182,10 +184,10 @@ const QualityQAPPage = () => {
             label = 'QAP PENDING';
             classes = 'bg-amber-50 text-amber-600 border-amber-200';
           }
-        } else if (status === 'DESIGN_QAP_REVIEW') {
+        } else if (effectiveStatus === 'DESIGN_QAP_REVIEW') {
           label = 'AWAITING DESIGN REVIEW';
           classes = 'bg-purple-50 text-purple-600 border-purple-200';
-        } else if (['BOM_PREPARATION', 'PRODUCTION_PLANNING', 'PARTIALLY_RELEASED', 'MATERIAL_RELEASED', 'MATERIAL_PLANNING', 'PURCHASE_ORDER_RELEASED', 'PROCUREMENT_IN_PROGRESS', 'MATERIAL_RECEIVED', 'MATERIAL_QC_PENDING', 'MATERIAL_QC_APPROVED', 'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'PAINTING_IN_PROGRESS', 'FINAL_QC_PENDING', 'FINAL_QC_APPROVED', 'READY_FOR_DELIVERY', 'Redy for Dispatch'].includes(status)) {
+        } else if (effectiveStatus === 'APPROVED' || ['BOM_PREPARATION', 'PRODUCTION_PLANNING', 'PARTIALLY_RELEASED', 'MATERIAL_RELEASED', 'MATERIAL_PLANNING', 'PURCHASE_ORDER_RELEASED', 'PROCUREMENT_IN_PROGRESS', 'MATERIAL_RECEIVED', 'MATERIAL_QC_PENDING', 'MATERIAL_QC_APPROVED', 'PRODUCTION_IN_PROGRESS', 'DIMENSIONAL_QC_PENDING', 'DIMENSIONAL_QC_APPROVED', 'PAINTING_IN_PROGRESS', 'FINAL_QC_PENDING', 'FINAL_QC_APPROVED', 'READY_FOR_DELIVERY', 'Redy for Dispatch'].includes(status)) {
           label = 'APPROVED & FINALIZED';
           classes = 'bg-emerald-50 text-emerald-600 border-emerald-200';
         } else if (status === 'DESIGN_IN_PROGRESS' || status === 'RC_CREATED') {
@@ -253,7 +255,7 @@ const QualityQAPPage = () => {
       className: "text-right",
       render: (_, rc) => {
         const qapFiles = rc.steps?.quality?.qap_files || [];
-        const isPending = rc.status === 'QUALITY_QAP_PENDING';
+        const isPending = rc.qap_status === 'QUALITY_QAP_PENDING' || rc.status === 'QUALITY_QAP_PENDING';
         const hasFiles = qapFiles.length > 0 || !!rc.steps?.quality?.qap_path;
         const atpFiles = rc.steps?.quality?.atp_files || [];
         const hasAtpFiles = atpFiles.length > 0 || !!rc.steps?.quality?.atp_path;

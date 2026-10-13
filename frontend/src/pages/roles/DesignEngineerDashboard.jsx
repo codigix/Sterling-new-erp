@@ -211,8 +211,10 @@ const DesignEngineerDashboard = () => {
 
 
   const { totalQap, pendingQap, completedQap } = useMemo(() => {
-    const excludedStatuses = ['pending', 'RC_CREATED', 'DESIGN_IN_PROGRESS', 'QUALITY_QAP_PENDING'];
-    const relevant = rootCardsList.filter(rc => !excludedStatuses.includes(rc.status));
+    const relevant = rootCardsList.filter(rc => {
+      const qapStatus = rc.qap_status || rc.status;
+      return qapStatus === 'DESIGN_QAP_REVIEW' || qapStatus === 'APPROVED' || !['pending', 'RC_CREATED', 'DESIGN_IN_PROGRESS', 'QUALITY_QAP_PENDING'].includes(rc.status);
+    });
     
     const filtered = selectedQapProjectId === "all"
       ? relevant
@@ -220,8 +222,8 @@ const DesignEngineerDashboard = () => {
       
     return {
       totalQap: filtered.length,
-      pendingQap: filtered.filter(rc => rc.status === 'DESIGN_QAP_REVIEW').length,
-      completedQap: filtered.filter(rc => rc.status !== 'DESIGN_QAP_REVIEW').length,
+      pendingQap: filtered.filter(rc => rc.qap_status === 'DESIGN_QAP_REVIEW' || rc.status === 'DESIGN_QAP_REVIEW').length,
+      completedQap: filtered.filter(rc => (rc.qap_status === 'APPROVED' || (rc.status !== 'DESIGN_QAP_REVIEW' && rc.qap_status !== 'DESIGN_QAP_REVIEW'))).length,
     };
   }, [rootCardsList, selectedQapProjectId]);
 

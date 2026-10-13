@@ -450,11 +450,25 @@ const sendToProduction = async (req, res) => {
     const internalId = cards[0].id;
     const projectName = cards[0].project_name;
     
-    // Update root card status
-    await db.query(
-      'UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      ['BOM_PREPARATION', internalId]
-    );
+    // Update root card QAP status to APPROVED
+    // Only update master status to BOM_PREPARATION if it has not advanced to Procurement or Production yet
+    const [currentCards] = await db.query('SELECT status FROM root_cards WHERE id = ?', [internalId]);
+    const currentStatus = currentCards[0]?.status;
+    const preProductionStatuses = [
+      'pending', 'RC_CREATED', 'DESIGN_IN_PROGRESS', 'QUALITY_QAP_PENDING', 'DESIGN_QAP_REVIEW', 'DESIGN_APPROVED'
+    ];
+
+    if (preProductionStatuses.includes(currentStatus)) {
+      await db.query(
+        'UPDATE root_cards SET qap_status = "APPROVED", status = "BOM_PREPARATION", updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        [internalId]
+      );
+    } else {
+      await db.query(
+        'UPDATE root_cards SET qap_status = "APPROVED", updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        [internalId]
+      );
+    }
 
     const title = 'BOM Preparation Started';
     const message = `Project "${projectName}" has been sent for Production (BOM Preparation). All approved drawings and QAP are now available.`;
@@ -514,11 +528,25 @@ const sendToQuality = async (req, res) => {
       );
     }
 
-    // Update root card status
-    await db.query(
-      'UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      ['QUALITY_QAP_PENDING', internalId]
-    );
+    // Update root card QAP status to QUALITY_QAP_PENDING
+    // Only update master status to QUALITY_QAP_PENDING if it is still in pre-production
+    const [currentCards] = await db.query('SELECT status FROM root_cards WHERE id = ?', [internalId]);
+    const currentStatus = currentCards[0]?.status;
+    const preProductionStatuses = [
+      'pending', 'RC_CREATED', 'DESIGN_IN_PROGRESS', 'QUALITY_QAP_PENDING'
+    ];
+
+    if (preProductionStatuses.includes(currentStatus)) {
+      await db.query(
+        'UPDATE root_cards SET qap_status = "QUALITY_QAP_PENDING", status = "QUALITY_QAP_PENDING", updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        [internalId]
+      );
+    } else {
+      await db.query(
+        'UPDATE root_cards SET qap_status = "QUALITY_QAP_PENDING", updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        [internalId]
+      );
+    }
 
     const title = 'QAP Upload Required';
     const message = `Project "${projectName}" has been sent for QAP upload by Quality department.`;
@@ -548,11 +576,25 @@ const returnToDesignEngineering = async (req, res) => {
     const internalId = cards[0].id;
     const projectName = cards[0].project_name;
     
-    // Update root card status - Back to DESIGN_QAP_REVIEW so Design Engineer can send to Production
-    await db.query(
-      'UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?',
-      ['DESIGN_QAP_REVIEW', internalId]
-    );
+    // Update root card QAP status to DESIGN_QAP_REVIEW
+    // Only update master status to DESIGN_QAP_REVIEW if it is still in pre-production
+    const [currentCards] = await db.query('SELECT status FROM root_cards WHERE id = ?', [internalId]);
+    const currentStatus = currentCards[0]?.status;
+    const preProductionStatuses = [
+      'pending', 'RC_CREATED', 'DESIGN_IN_PROGRESS', 'QUALITY_QAP_PENDING', 'DESIGN_QAP_REVIEW'
+    ];
+
+    if (preProductionStatuses.includes(currentStatus)) {
+      await db.query(
+        'UPDATE root_cards SET qap_status = "DESIGN_QAP_REVIEW", status = "DESIGN_QAP_REVIEW", updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        [internalId]
+      );
+    } else {
+      await db.query(
+        'UPDATE root_cards SET qap_status = "DESIGN_QAP_REVIEW", updated_at = CURRENT_TIMESTAMP WHERE id = ?',
+        [internalId]
+      );
+    }
 
     const title = 'QAP Uploaded - Ready for Production Hand-off';
     const message = `Quality department has uploaded the QAP for "${projectName}". Please review and send to Production.`;
@@ -580,7 +622,7 @@ const uploadQAP = async (req, res) => {
 
   try {
     // Resolve internal ID, status and fetch project_name if public_id is provided
-    const [cards] = await db.query('SELECT id, project_name, status FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    const [cards] = await db.query('SELECT id, project_name, status, qap_status FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
     if (cards.length === 0) {
       // Clean up uploaded files if root card not found
       files.forEach(file => {
@@ -595,7 +637,8 @@ const uploadQAP = async (req, res) => {
 
     // Reject if the route card has not been sent to Quality
     const preQualityStatuses = ['RC_CREATED', 'pending', 'DESIGN_IN_PROGRESS'];
-    if (preQualityStatuses.includes(currentStatus)) {
+    const isQualityAuthorized = cards[0].qap_status === 'QUALITY_QAP_PENDING' || cards[0].qap_status === 'DESIGN_QAP_REVIEW' || cards[0].qap_status === 'APPROVED' || !preQualityStatuses.includes(currentStatus);
+    if (!isQualityAuthorized) {
       files.forEach(file => {
         const tempPath = path.resolve(process.env.UPLOAD_PATH, file.filename);
         if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);
@@ -686,7 +729,7 @@ const uploadATP = async (req, res) => {
 
   try {
     // Resolve internal ID, status and fetch project_name if public_id is provided
-    const [cards] = await db.query('SELECT id, project_name, status FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
+    const [cards] = await db.query('SELECT id, project_name, status, qap_status FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
     if (cards.length === 0) {
       // Clean up uploaded files if root card not found
       files.forEach(file => {
@@ -701,7 +744,8 @@ const uploadATP = async (req, res) => {
 
     // Reject if the route card has not been sent to Quality
     const preQualityStatuses = ['RC_CREATED', 'pending', 'DESIGN_IN_PROGRESS'];
-    if (preQualityStatuses.includes(currentStatus)) {
+    const isQualityAuthorized = cards[0].qap_status === 'QUALITY_QAP_PENDING' || cards[0].qap_status === 'DESIGN_QAP_REVIEW' || cards[0].qap_status === 'APPROVED' || !preQualityStatuses.includes(currentStatus);
+    if (!isQualityAuthorized) {
       files.forEach(file => {
         const tempPath = path.resolve(process.env.UPLOAD_PATH, file.filename);
         if (fs.existsSync(tempPath)) fs.unlinkSync(tempPath);

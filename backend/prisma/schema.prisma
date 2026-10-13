@@ -1115,6 +1115,7 @@ model root_cards {
   currency             String?                @default("INR") @db.VarChar(10)
   priority             root_cards_priority?   @default(medium)
   status               String?                @default("RC_CREATED") @db.VarChar(100)
+  qap_status           String?                @default("NOT_STARTED") @db.VarChar(50)
   inspection           String?                @db.VarChar(255)
   inspection_authority String?                @db.VarChar(255)
   ld                   String?                @db.Text
