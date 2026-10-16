@@ -2,10 +2,11 @@ import React from "react";
 import { ChevronLeft, ChevronRight, Save, X } from "lucide-react";
 import Button from "../../../ui/Button";
 import { useFormUI } from "../hooks";
-import { WIZARD_STEPS } from "../constants";
+import { getWizardSteps } from "../constants";
 
 export default function FormActions({ mode = 'create', onNext, onPrev, onSubmit, onCancel, canSubmit = true, isLastStep = false }) {
   const { currentStep, loading } = useFormUI();
+  const WIZARD_STEPS = getWizardSteps(mode);
   const actualIsLastStep = isLastStep || currentStep === WIZARD_STEPS.length;
 
   if (mode === 'view') {

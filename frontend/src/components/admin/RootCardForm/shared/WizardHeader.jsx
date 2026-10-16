@@ -1,10 +1,11 @@
 import React from "react";
 import { ChevronRight } from "lucide-react";
-import { WIZARD_STEPS } from "../constants";
+import { getWizardSteps } from "../constants";
 import { useFormUI } from "../hooks";
 
 export default function WizardHeader({ mode = 'create' }) {
   const { currentStep, setStep } = useFormUI();
+  const WIZARD_STEPS = getWizardSteps(mode);
 
   const getTitleForMode = () => {
     switch (mode) {

@@ -15,6 +15,7 @@ import Step3_ProductionPlan from "./steps/Step3_ProductionPlan";
 import Step4_MaterialRequirement from "./steps/Step4_MaterialRequirement";
 import Step5_Inventory from "./steps/Step5_Inventory";
 import Step6_QualityCheck from "./steps/Step6_QualityCheck";
+import Step7_Documents from "./steps/Step7_Documents";
 import "./RootCardForm.css";
 import { showSuccess, showError } from "../../../utils/toastUtils";
 import Swal from "sweetalert2";
@@ -216,6 +217,10 @@ function RootCardFormContent({
             isAssignMode={mode === "assign"}
           />
         );
+      case 7:
+        return mode === "view" ? (
+          <Step7_Documents rootCardId={initialData?.public_id || initialData?.id} />
+        ) : null;
       default:
         return null;
     }

@@ -23,6 +23,7 @@ const {
   updateRootCardTimelines,
   getNextProjectCode
 } = require('../controllers/rootCardController');
+const { getRootCardDocuments } = require('../controllers/rootCardDocumentsController');
 const auth = require('../middleware/authMiddleware');
 
 // Multer storage configuration
@@ -115,6 +116,10 @@ router.post('/:id/steps/all', auth, saveAllSteps);
 // @route   GET api/root-cards/:id/steps/:stepKey
 // @desc    Get step data for a specific step
 router.get('/:id/steps/:stepKey', auth, getStepData);
+
+// @route   GET api/root-cards/:id/documents
+// @desc    Get all department documents linked to a root card (read-only)
+router.get('/:id/documents', auth, getRootCardDocuments);
 
 // @route   DELETE api/root-cards/:id
 // @desc    Delete a root card

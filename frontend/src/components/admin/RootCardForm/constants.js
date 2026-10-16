@@ -5,6 +5,7 @@ import {
   Check,
   Truck,
   CheckCircle,
+  FolderOpen,
 } from "lucide-react";
 
 export const WIZARD_STEPS = [
@@ -15,6 +16,12 @@ export const WIZARD_STEPS = [
   { number: 5, name: "Inventory", icon: Package },
   { number: 6, name: "Quality", icon: Check },
 ];
+
+export const DOCUMENTS_STEP = { number: 7, name: "Documents", icon: FolderOpen };
+
+// The read-only Documents tab is only appended in view mode, so create/edit/assign keep their 6-step flow
+export const getWizardSteps = (mode) =>
+  mode === "view" ? [...WIZARD_STEPS, DOCUMENTS_STEP] : WIZARD_STEPS;
 
 export const PRODUCTION_PHASES = {
   "Material Prep": [
