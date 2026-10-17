@@ -1,5 +1,148 @@
 const db = require('../config/db');
 
+// ─── Department stage completion (reports only) ─────────────────────────────
+// root_card_steps.status is not kept up to date by the route-card flow, so reports
+// work out whether a department's stage is done from how far the route card has
+// progressed, and take the completion date from that department's own last action.
+
+// Route card status → how far the card has progressed (follows the real status transitions)
+const STATUS_PROGRESS = {
+  pending: 0, RC_CREATED: 0,
+  DESIGN_IN_PROGRESS: 1, QUALITY_QAP_PENDING: 2, DESIGN_QAP_REVIEW: 3, DESIGN_APPROVED: 4,
+  BOM_PREPARATION: 5, MATERIAL_PLANNING: 6, PROCUREMENT_IN_PROGRESS: 7,
+  PURCHASE_ORDER_RELEASED: 8, PO_RELEASED: 8,
+  MATERIAL_RECEIVED: 9, MATERIAL_QC_PENDING: 9, MATERIAL_QC_APPROVED: 9,
+  PARTIALLY_RELEASED: 9, MATERIAL_PARTIALLY_RELEASED: 9,
+  MATERIAL_RELEASED: 10, SEND_TO_PRODUCTION: 10,
+  PRODUCTION_IN_PROGRESS: 11,
+  'Production completed and send to Quality fot QC': 12, DIMENSIONAL_QC_PENDING: 12, DIMENSIONAL_QC_APPROVED: 12,
+  'send to production for complete final produciton': 12, PAINTING_IN_PROGRESS: 12, 'UNDER INSPECTION': 12,
+  'final Prodcution completed and send to quality for final qc': 13, PHASE_2_QC_PENDING: 13, FINAL_QC_PENDING: 13,
+  'Redy for Dispatch': 14, PHASE_2_QC_APPROVED: 14, FINAL_QC_APPROVED: 14, QC_APPROVED: 14,
+  READY_FOR_DELIVERY: 14, READY_FOR_DISPATCH: 14, DISPATCHED: 14, DELIVERED: 14, COMPLETED: 14, Completed: 14
+};
+
+// Progress a route card must reach for each department's stage to count as complete
+const STAGE_DONE_AT = { Design: 5, Procurement: 8, Inventory: 10, Production: 13, Quality: 14 };
+
+const STAGE_STEP_KEYS = {
+  Design: 'design_engineering',
+  Production: 'production',
+  Procurement: 'procurement',
+  Inventory: 'inventory',
+  Quality: 'quality'
+};
+
+// Returns { [rootCardId]: { Design: { completed, completedDate }, ... } }
+const loadStageCompletion = async (rootCardIds = null) => {
+  const filterIds = Array.isArray(rootCardIds);
+  if (filterIds && rootCardIds.length === 0) return {};
+  const where = (col) => (filterIds ? `AND ${col} IN (?)` : '');
+  const params = filterIds ? [rootCardIds] : [];
+
+  const [cards] = await db.query(
+    `SELECT id, status, qap_status FROM root_cards WHERE 1=1 ${where('id')}`, params
+  );
+  const [steps] = await db.query(
+    `SELECT root_card_id, step_key, status, updated_at FROM root_card_steps WHERE 1=1 ${where('root_card_id')}`, params
+  );
+  const [designDates] = await db.query(
+    `SELECT root_card_id, MAX(updated_at) AS done_at FROM design_documents
+     WHERE status = 'Approved' ${where('root_card_id')} GROUP BY root_card_id`, params
+  );
+  const [poDates] = await db.query(
+    `SELECT COALESCE(po.project_id, q.root_card_id, mr.root_card_id) AS root_card_id, MAX(po.created_at) AS done_at
+     FROM purchase_orders po
+     LEFT JOIN quotations q ON po.quotation_id = q.id
+     LEFT JOIN material_requests mr ON q.material_request_id = mr.id
+     WHERE LOWER(COALESCE(po.status, '')) NOT IN ('draft', 'cancelled')
+     GROUP BY COALESCE(po.project_id, q.root_card_id, mr.root_card_id)`
+  );
+  const [grnDates] = await db.query(
+    `SELECT COALESCE(po.project_id, q.root_card_id, mr.root_card_id) AS root_card_id, MAX(g.updated_at) AS done_at
+     FROM grns g
+     JOIN purchase_orders po ON g.purchase_order_id = po.id
+     LEFT JOIN quotations q ON po.quotation_id = q.id
+     LEFT JOIN material_requests mr ON q.material_request_id = mr.id
+     WHERE g.status IN ('material_released', 'partially_released')
+     GROUP BY COALESCE(po.project_id, q.root_card_id, mr.root_card_id)`
+  );
+  const [productionDates] = await db.query(
+    `SELECT root_card_id, MAX(work_date) AS done_at FROM daily_production_updates
+     WHERE 1=1 ${where('root_card_id')} GROUP BY root_card_id`, params
+  );
+  const [qualityDates] = await db.query(
+    `SELECT root_card_id, MAX(updated_at) AS done_at FROM project_inspections
+     WHERE status = 'Approved' ${where('root_card_id')} GROUP BY root_card_id`, params
+  );
+
+  const toMap = (rows) => Object.fromEntries(rows.filter((r) => r.root_card_id).map((r) => [r.root_card_id, r.done_at]));
+  const evidence = {
+    Design: toMap(designDates),
+    Procurement: toMap(poDates),
+    Inventory: toMap(grnDates),
+    Production: toMap(productionDates),
+    Quality: toMap(qualityDates)
+  };
+  const stepMap = {};
+  steps.forEach((s) => {
+    (stepMap[s.root_card_id] ||= {})[s.step_key] = s;
+  });
+
+  const result = {};
+  cards.forEach((card) => {
+    const progress = STATUS_PROGRESS[card.status];
+    result[card.id] = {};
+    Object.keys(STAGE_DONE_AT).forEach((stage) => {
+      const step = stepMap[card.id]?.[STAGE_STEP_KEYS[stage]];
+      const stepCompleted = step && String(step.status).toLowerCase() === 'completed';
+      const reached = progress !== undefined && progress >= STAGE_DONE_AT[stage];
+      const designApproved = stage === 'Design' && card.qap_status === 'APPROVED';
+      const completed = Boolean(stepCompleted || reached || designApproved);
+      result[card.id][stage] = {
+        completed,
+        completedDate: completed ? (evidence[stage][card.id] || (stepCompleted ? step.updated_at : null)) : null
+      };
+    });
+  });
+  return result;
+};
+
+const parseTimelines = (value) => {
+  if (!value) return null;
+  if (typeof value === 'object') return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
+};
+
+// Local YYYY-MM-DD for a timeline date string (avoids the UTC shift of toISOString)
+const toDateKey = (value) => {
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return null;
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+};
+
+// Classifies one department stage against its timeline end date
+const evaluateStage = (stageInfo, endDate, today = new Date()) => {
+  const deadline = new Date(endDate);
+  deadline.setHours(23, 59, 59, 999);
+  const dayMs = 1000 * 3600 * 24;
+
+  if (stageInfo.completed) {
+    if (!stageInfo.completedDate) return { state: 'completed_undated', delayDays: 0 };
+    const done = new Date(stageInfo.completedDate);
+    return done <= deadline
+      ? { state: 'completed_on_time', delayDays: 0 }
+      : { state: 'completed_late', delayDays: Math.ceil((done - deadline) / dayMs) };
+  }
+  return today > deadline
+    ? { state: 'overdue', delayDays: Math.ceil((today - deadline) / dayMs) }
+    : { state: 'pending_on_track', delayDays: 0 };
+};
+
 const getOverviewReport = async (req, res) => {
   const { start, end } = req.query;
   try {
@@ -134,68 +277,34 @@ const getProjectsReport = async (req, res) => {
           }
         }
 
-        const stepKeyMap = {
-          Design: 'design_engineering',
-          Production: 'production',
-          Procurement: 'procurement',
-          Inventory: 'inventory',
-          Quality: 'quality'
+        const stageCompletion = (await loadStageCompletion([project.id]))[project.id] || {};
+        const STATE_LABELS = {
+          completed_on_time: 'Completed On Time',
+          completed_late: 'Completed with Delay',
+          completed_undated: 'Completed',
+          overdue: 'Overdue',
+          pending_on_track: 'Pending (On Time)'
         };
-
-        // Query step statuses for this root card
-        const [steps] = await db.query(`
-          SELECT step_key, status, updated_at 
-          FROM root_card_steps 
-          WHERE root_card_id = ?
-        `, [projectId]);
-
-        const stepMap = {};
-        steps.forEach(s => {
-          stepMap[s.step_key] = {
-            status: s.status,
-            completed_date: s.updated_at
-          };
-        });
 
         const departments = ['Design', 'Production', 'Procurement', 'Inventory', 'Quality'];
         const timelineReport = departments.map(dept => {
-          const stepKey = stepKeyMap[dept];
-          const stepInfo = stepMap[stepKey] || { status: 'pending', completed_date: null };
-          
+          const stageInfo = stageCompletion[dept] || { completed: false, completedDate: null };
           const dates = (timelinesObj && timelinesObj[dept]) ? timelinesObj[dept] : null;
-          
-          let status = 'Not Assigned';
+
+          let status = stageInfo.completed ? 'Completed' : 'Not Assigned';
           let delayDays = 0;
 
           if (dates && dates.endDate) {
-            const end = new Date(dates.endDate);
-            end.setHours(23, 59, 59, 999); // end of the target day
-
-            if (stepInfo.status === 'completed' || stepInfo.status === 'Completed') {
-              const compDate = new Date(stepInfo.completed_date);
-              if (compDate <= end) {
-                status = 'Completed On Time';
-              } else {
-                status = 'Completed with Delay';
-                delayDays = Math.ceil((compDate.getTime() - end.getTime()) / (1000 * 3600 * 24));
-              }
-            } else {
-              // Not completed yet
-              const today = new Date();
-              if (today > end) {
-                status = 'Overdue';
-                delayDays = Math.ceil((today.getTime() - end.getTime()) / (1000 * 3600 * 24));
-              } else {
-                status = 'Pending (On Time)';
-              }
-            }
+            const evaluation = evaluateStage(stageInfo, dates.endDate);
+            status = STATE_LABELS[evaluation.state];
+            delayDays = evaluation.delayDays;
           }
 
           return {
             department: dept,
             startDate: dates ? dates.startDate : null,
             endDate: dates ? dates.endDate : null,
-            completedDate: (stepInfo.status === 'completed' || stepInfo.status === 'Completed') ? stepInfo.completed_date : null,
+            completedDate: stageInfo.completedDate,
             status,
             delayDays
           };
@@ -320,14 +429,15 @@ const getVendorsReport = async (req, res) => {
       SELECT 
         v.id,
         v.name,
-        (SELECT COUNT(*) FROM purchase_orders WHERE vendor_id = v.id AND status != 'Cancelled') as totalOrders,
-        (SELECT COALESCE(SUM(total_amount), 0) FROM purchase_orders WHERE vendor_id = v.id AND status != 'Cancelled') as totalValue,
-        (SELECT COUNT(*) FROM grns grn 
+        (SELECT COUNT(*) FROM purchase_orders WHERE vendor_id = v.id AND LOWER(COALESCE(status, '')) NOT IN ('cancelled', 'draft')) as totalOrders,
+        (SELECT COALESCE(SUM(total_amount), 0) FROM purchase_orders WHERE vendor_id = v.id AND LOWER(COALESCE(status, '')) NOT IN ('cancelled', 'draft')) as totalValue,
+        (SELECT COUNT(*) FROM grns grn
          JOIN purchase_orders po ON grn.purchase_order_id = po.id
-         WHERE po.vendor_id = v.id AND grn.status = 'completed') as totalGRNs,
-         (SELECT COUNT(*) FROM grns grn 
+         WHERE po.vendor_id = v.id) as totalGRNs,
+         (SELECT COUNT(*) FROM grns grn
           JOIN purchase_orders po ON grn.purchase_order_id = po.id
-          WHERE po.vendor_id = v.id AND grn.status = 'completed' AND DATE(grn.posting_date) <= po.expected_delivery_date) as onTimeGRNs
+          WHERE po.vendor_id = v.id
+            AND (po.expected_delivery_date IS NULL OR DATE(grn.posting_date) <= po.expected_delivery_date)) as onTimeGRNs
       FROM vendors v
     `);
 
@@ -369,6 +479,8 @@ const getVendorsReport = async (req, res) => {
       return {
         name: v.name,
         totalOrders: v.totalOrders || 0,
+        totalDeliveries: totalGRNs,
+        onTimeDeliveries: onTimeGRNs,
         onTimeDelivery,
         qualityRating,
         totalValue: parseFloat(v.totalValue || 0),
@@ -385,31 +497,33 @@ const getVendorsReport = async (req, res) => {
 
 const getInventoryReport = async (req, res) => {
   const { start, end } = req.query;
+  // No reorder level is stored anywhere, so the page sends the threshold (default 50, as before)
+  const minStock = Number.isFinite(parseFloat(req.query.minStock)) ? parseFloat(req.query.minStock) : 50;
   try {
     const [movements] = await db.query(`
       SELECT 
         COALESCE(SUM(CASE WHEN actual_qty > 0 THEN actual_qty ELSE 0 END), 0) as received,
         COALESCE(SUM(CASE WHEN actual_qty < 0 THEN ABS(actual_qty) ELSE 0 END), 0) as issued
       FROM stock_ledger
-      WHERE posting_date BETWEEN ? AND ?
-    `, [start, end]);
+      ${start && end ? 'WHERE posting_date BETWEEN ? AND ?' : ''}
+    `, start && end ? [start, end] : []);
 
     const [items] = await db.query(`
       SELECT 
         item_code as code,
         material_name as description,
         SUM(actual_qty) as currentStock,
-        50 as minStock,
+        ? as minStock,
         MAX(posting_date) as lastMovement
       FROM stock_ledger
       GROUP BY item_code, material_name
-    `);
+    `, [minStock]);
 
     const formattedItems = items.map(i => ({
       code: i.code,
       description: i.description || 'N/A',
       currentStock: parseFloat(i.currentStock || 0),
-      minStock: i.minStock,
+      minStock: parseFloat(i.minStock),
       lastMovement: i.lastMovement
     }));
 
@@ -418,6 +532,8 @@ const getInventoryReport = async (req, res) => {
       itemsReceived: parseFloat(movements[0].received || 0),
       itemsIssued: parseFloat(movements[0].issued || 0),
       lowStockItems: formattedItems.filter(i => i.currentStock < i.minStock).length,
+      negativeStockItems: formattedItems.filter(i => i.currentStock < 0).length,
+      minStock,
       items: formattedItems
     });
   } catch (error) {
@@ -446,85 +562,47 @@ const getEmployeesReport = async (req, res) => {
     const params = start && end ? [start, end, start, end, start, end] : [];
     const [employeesList] = await db.query(employeesQuery, params);
 
-    // 1. Fetch all root cards and steps to calculate project timeline stats
+    // 1. Project timeline stages per department
     const [rootCards] = await db.query('SELECT id, timelines FROM root_cards');
-    const [steps] = await db.query('SELECT root_card_id, step_key, status, updated_at FROM root_card_steps');
-
-    const stepMap = {};
-    steps.forEach(s => {
-      if (!stepMap[s.root_card_id]) {
-        stepMap[s.root_card_id] = {};
-      }
-      stepMap[s.root_card_id][s.step_key] = {
-        status: s.status,
-        completed_date: s.updated_at
-      };
-    });
+    const stageCompletion = await loadStageCompletion();
 
     const DEPT_TIMELINE_MAP = {
-      2: { timelineKey: 'Design', stepKey: 'design_engineering' },
-      3: { timelineKey: 'Production', stepKey: 'production' },
-      4: { timelineKey: 'Procurement', stepKey: 'procurement' },
-      5: { timelineKey: 'Quality', stepKey: 'quality' },
-      6: { timelineKey: 'Inventory', stepKey: 'inventory' }
+      2: 'Design',
+      3: 'Production',
+      4: 'Procurement',
+      5: 'Quality',
+      6: 'Inventory'
     };
 
-    const timelineStats = {
-      2: { total: 0, completed: 0, onTime: 0 },
-      3: { total: 0, completed: 0, onTime: 0 },
-      4: { total: 0, completed: 0, onTime: 0 },
-      5: { total: 0, completed: 0, onTime: 0 },
-      6: { total: 0, completed: 0, onTime: 0 }
-    };
-
-    const today = new Date();
-    today.setHours(23, 59, 59, 999);
+    // completed = all completed stages; judged = completed stages that have a completion date;
+    // onTime = completed on time (only completed stages count towards on-time)
+    const emptyStats = () => ({ total: 0, completed: 0, judged: 0, onTime: 0, pendingOnTrack: 0, overdue: 0 });
+    const timelineStats = {};
+    Object.keys(DEPT_TIMELINE_MAP).forEach((deptId) => { timelineStats[deptId] = emptyStats(); });
 
     rootCards.forEach(rc => {
-      if (!rc.timelines) return;
-      let timelinesObj = rc.timelines;
-      if (typeof timelinesObj === 'string') {
-        try {
-          timelinesObj = JSON.parse(timelinesObj);
-        } catch (e) {
-          return;
-        }
-      }
+      const timelinesObj = parseTimelines(rc.timelines);
+      if (!timelinesObj) return;
 
       Object.keys(DEPT_TIMELINE_MAP).forEach(deptId => {
-        const { timelineKey, stepKey } = DEPT_TIMELINE_MAP[deptId];
-        const dates = timelinesObj[timelineKey];
-        if (dates && dates.endDate) {
-          // Date filter if provided
-          if (start && end) {
-            try {
-              const milestoneDate = dates.startDate || dates.endDate;
-              const milestoneDateStr = new Date(milestoneDate).toISOString().split('T')[0];
-              if (milestoneDateStr < start || milestoneDateStr > end) return;
-            } catch (e) {
-              return;
-            }
-          }
+        const stage = DEPT_TIMELINE_MAP[deptId];
+        const dates = timelinesObj[stage];
+        if (!dates || !dates.endDate) return;
 
-          timelineStats[deptId].total++;
-
-          const stepInfo = (stepMap[rc.id] && stepMap[rc.id][stepKey]) || { status: 'pending', completed_date: null };
-          const isCompleted = stepInfo.status === 'completed' || stepInfo.status === 'Completed';
-          const endD = new Date(dates.endDate);
-          endD.setHours(23, 59, 59, 999);
-
-          if (isCompleted) {
-            timelineStats[deptId].completed++;
-            const compDate = new Date(stepInfo.completed_date);
-            if (compDate <= endD) {
-              timelineStats[deptId].onTime++;
-            }
-          } else {
-            if (today <= endD) {
-              timelineStats[deptId].onTime++;
-            }
-          }
+        if (start && end) {
+          const milestoneDateStr = toDateKey(dates.startDate || dates.endDate);
+          if (!milestoneDateStr || milestoneDateStr < start || milestoneDateStr > end) return;
         }
+
+        const stats = timelineStats[deptId];
+        stats.total++;
+        const stageInfo = stageCompletion[rc.id]?.[stage] || { completed: false, completedDate: null };
+        const { state } = evaluateStage(stageInfo, dates.endDate);
+        if (state.startsWith('completed')) stats.completed++;
+        if (state === 'completed_on_time' || state === 'completed_late') stats.judged++;
+        if (state === 'completed_on_time') stats.onTime++;
+        if (state === 'pending_on_track') stats.pendingOnTrack++;
+        if (state === 'overdue') stats.overdue++;
       });
     });
 
@@ -533,20 +611,21 @@ const getEmployeesReport = async (req, res) => {
       const tasksCompleted = e.completedTasks || 0;
       const tasksOnTime = e.onTimeTasks || 0;
 
-      const tStats = timelineStats[e.department_id] || { total: 0, completed: 0, onTime: 0 };
-      
+      const tStats = timelineStats[e.department_id] || emptyStats();
+
       const totalDeliverables = tasksTotal + tStats.total;
       const completedDeliverables = tasksCompleted + tStats.completed;
-      const onTimeDeliverables = tasksOnTime + tStats.onTime;
 
-      const efficiency = totalDeliverables > 0 
-        ? Math.round((completedDeliverables / totalDeliverables) * 100) 
+      const efficiency = totalDeliverables > 0
+        ? Math.round((completedDeliverables / totalDeliverables) * 100)
         : 100;
-      
-      const onTimeRate = completedDeliverables > 0 
-        ? (onTimeDeliverables / completedDeliverables) 
+
+      // On-time rate only over completed work whose completion date is known (never above 100%)
+      const judgedDeliverables = tasksCompleted + tStats.judged;
+      const onTimeRate = judgedDeliverables > 0
+        ? Math.min(1, (tasksOnTime + tStats.onTime) / judgedDeliverables)
         : 1.0;
-      
+
       const qualityScore = parseFloat(Math.max(1.0, 5.0 - ((1.0 - onTimeRate) * 4)).toFixed(1));
       const rating = parseFloat((((efficiency / 20) + qualityScore) / 2).toFixed(1));
 
@@ -561,6 +640,12 @@ const getEmployeesReport = async (req, res) => {
         timelinesTotal: tStats.total,
         timelinesCompleted: tStats.completed,
         timelinesOnTime: tStats.onTime,
+        timelinesPendingOnTrack: tStats.pendingOnTrack,
+        timelinesOverdue: tStats.overdue,
+        // Completed stages whose completion date is known (on-time % is measured over these)
+        timelinesJudged: tStats.judged,
+        // Sort key for the "Project On-Time" column
+        projectOnTimeRate: tStats.judged > 0 ? Math.round((tStats.onTime / tStats.judged) * 100) : 100,
         efficiency,
         qualityScore,
         rating
@@ -722,63 +807,32 @@ const getEmployeeDailyReports = async (req, res) => {
       const mappedTimelines = [];
 
       if (timelineInfo) {
-        const { timelineKey, stepKey } = timelineInfo;
+        const { timelineKey } = timelineInfo;
         const [rootCards] = await db.query('SELECT id, project_code, project_name, timelines FROM root_cards');
-        const [steps] = await db.query('SELECT root_card_id, status, updated_at FROM root_card_steps WHERE step_key = ?', [stepKey]);
-
-        const stepLookup = {};
-        steps.forEach(s => {
-          stepLookup[s.root_card_id] = {
-            status: s.status,
-            completed_date: s.updated_at
-          };
-        });
-
-        const today = new Date();
-        today.setHours(23, 59, 59, 999);
+        const stageCompletion = await loadStageCompletion();
+        const DELAY_LABELS = {
+          completed_on_time: 'On Time',
+          completed_undated: 'On Time',
+          completed_late: 'Delayed',
+          overdue: 'Overdue',
+          pending_on_track: 'Pending'
+        };
 
         rootCards.forEach(rc => {
-          if (!rc.timelines) return;
-          let timelinesObj = rc.timelines;
-          if (typeof timelinesObj === 'string') {
-            try {
-              timelinesObj = JSON.parse(timelinesObj);
-            } catch (e) {
-              return;
-            }
-          }
+          const timelinesObj = parseTimelines(rc.timelines);
+          if (!timelinesObj) return;
 
           const dates = timelinesObj[timelineKey];
           if (dates && dates.endDate) {
             // Apply date filters if provided
             if (start && end) {
-              try {
-                const startDate = dates.startDate || dates.endDate;
-                const startDateStr = new Date(startDate).toISOString().split('T')[0];
-                if (startDateStr < start || startDateStr > end) return;
-              } catch (e) {
-                return;
-              }
+              const startDateStr = toDateKey(dates.startDate || dates.endDate);
+              if (!startDateStr || startDateStr < start || startDateStr > end) return;
             }
 
-            const stepDetail = stepLookup[rc.id] || { status: 'pending', completed_date: null };
-            const isCompleted = stepDetail.status === 'completed' || stepDetail.status === 'Completed';
-            const deadline = new Date(dates.endDate);
-            deadline.setHours(23, 59, 59, 999);
-
-            let delayStatus = 'On Time';
-            if (isCompleted) {
-              const compDate = new Date(stepDetail.completed_date);
-              if (compDate > deadline) {
-                delayStatus = 'Delayed';
-              }
-            } else {
-              if (today > deadline) {
-                delayStatus = 'Overdue';
-              } else {
-                delayStatus = 'Pending';
-              }
-            }
+            const stageInfo = stageCompletion[rc.id]?.[timelineKey] || { completed: false, completedDate: null };
+            const isCompleted = stageInfo.completed;
+            const delayStatus = DELAY_LABELS[evaluateStage(stageInfo, dates.endDate).state];
 
             mappedTimelines.push({
               id: `timeline-${rc.id}`,
@@ -875,57 +929,35 @@ const getEmployeeWorkingHours = async (req, res) => {
       let totalTimelines = 0;
       let completedTimelines = 0;
       let onTimeTimelines = 0;
+      let judgedTimelines = 0;
 
       if (timelineInfo) {
-        const { timelineKey, stepKey } = timelineInfo;
+        const { timelineKey } = timelineInfo;
         const [rootCards] = await db.query('SELECT id, timelines FROM root_cards');
-        const [steps] = await db.query('SELECT root_card_id, status, updated_at FROM root_card_steps WHERE step_key = ?', [stepKey]);
-
-        const stepLookup = {};
-        steps.forEach(s => {
-          stepLookup[s.root_card_id] = {
-            status: s.status,
-            completed_date: s.updated_at
-          };
-        });
-
-        const today = new Date();
-        today.setHours(23, 59, 59, 999);
+        const stageCompletion = await loadStageCompletion();
 
         rootCards.forEach(rc => {
-          if (!rc.timelines) return;
-          let timelinesObj = rc.timelines;
-          if (typeof timelinesObj === 'string') {
-            try {
-              timelinesObj = JSON.parse(timelinesObj);
-            } catch (e) {
-              return;
-            }
-          }
+          const timelinesObj = parseTimelines(rc.timelines);
+          if (!timelinesObj) return;
 
           const dates = timelinesObj[timelineKey];
           if (dates && dates.endDate) {
-            const dateStr = new Date(dates.startDate || dates.endDate).toISOString().split('T')[0];
-            if (dateStr >= start && dateStr <= end) {
+            const dateStr = toDateKey(dates.startDate || dates.endDate);
+            if (dateStr && dateStr >= start && dateStr <= end) {
               totalTimelines++;
-              const stepDetail = stepLookup[rc.id] || { status: 'pending', completed_date: null };
-              const isCompleted = stepDetail.status === 'completed' || stepDetail.status === 'Completed';
+              const stageInfo = stageCompletion[rc.id]?.[timelineKey] || { completed: false, completedDate: null };
+              const isCompleted = stageInfo.completed;
               if (isCompleted) {
                 completedTimelines++;
               }
 
-              // On-time check
-              const deadline = new Date(dates.endDate);
-              deadline.setHours(23, 59, 59, 999);
-              if (isCompleted) {
-                const compDate = new Date(stepDetail.completed_date);
-                if (compDate <= deadline) {
-                  onTimeTimelines++;
-                }
-              } else {
-                if (today <= deadline) {
-                  onTimeTimelines++;
-                }
+              // On-time: only completed stages with a known completion date count
+              const stageState = evaluateStage(stageInfo, dates.endDate).state;
+              if (stageState === 'completed_on_time' || stageState === 'completed_late') {
+                judgedTimelines++;
+              }
+              if (stageState === 'completed_on_time') {
+                onTimeTimelines++;
               }
 
               if (!dailyMap[dateStr]) {
@@ -965,7 +997,8 @@ const getEmployeeWorkingHours = async (req, res) => {
         tasksCompleted,
         timelinesTotal: totalTimelines,
         timelinesCompleted: completedTimelines,
-        timelinesOnTime: onTimeTimelines
+        timelinesOnTime: onTimeTimelines,
+        timelinesJudged: judgedTimelines
       });
     }
   } catch (error) {
@@ -1040,9 +1073,9 @@ const getOperatorLogsReport = async (req, res) => {
         rc.id as root_card_id
       FROM daily_production_updates dpu
       LEFT JOIN root_cards rc ON dpu.root_card_id = rc.id
-      WHERE dpu.work_date BETWEEN ? AND ?
+      ${start && end ? 'WHERE dpu.work_date BETWEEN ? AND ?' : ''}
       ORDER BY dpu.work_date DESC, dpu.id DESC
-    `, [start, end]);
+    `, start && end ? [start, end] : []);
 
     res.json(rows);
   } catch (error) {
@@ -1194,16 +1227,32 @@ const updateOperatorRates = async (req, res) => {
       });
     }
 
+    // Rates live on the users table; report operators that could not be saved instead of claiming success
+    const notSaved = [];
     for (const entry of rateEntries) {
       const rate = parseFloat(entry.hourly_rate || 0);
+      let result = null;
       if (entry.operator_id && !isNaN(entry.operator_id)) {
-        await db.query('UPDATE users SET hourly_rate = ? WHERE id = ?', [rate, entry.operator_id]);
-      } else if (entry.operator_name) {
-        await db.query('UPDATE users SET hourly_rate = ? WHERE full_name = ?', [rate, entry.operator_name]);
+        [result] = await db.query('UPDATE users SET hourly_rate = ? WHERE id = ?', [rate, entry.operator_id]);
+      }
+      if ((!result || result.affectedRows === 0) && entry.operator_name) {
+        const [matches] = await db.query('SELECT id FROM users WHERE full_name = ?', [entry.operator_name]);
+        if (matches.length === 1) {
+          [result] = await db.query('UPDATE users SET hourly_rate = ? WHERE id = ?', [rate, matches[0].id]);
+        }
+      }
+      if (!result || result.affectedRows === 0) {
+        notSaved.push(entry.operator_name || `Operator #${entry.operator_id}`);
       }
     }
 
-    res.json({ message: 'Operator rates updated successfully' });
+    if (notSaved.length > 0) {
+      return res.status(207).json({
+        message: `Rates saved, except for operators not found in the user list: ${notSaved.join(', ')}`,
+        notSaved
+      });
+    }
+    res.json({ message: 'Operator rates updated successfully', notSaved: [] });
   } catch (error) {
     console.error('Error updating operator rates:', error);
     res.status(500).json({ message: 'Server error', error: error.message });

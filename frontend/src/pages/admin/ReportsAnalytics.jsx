@@ -45,6 +45,160 @@ import {
   Save,
 } from 'lucide-react';
 
+// Local YYYY-MM-DD (toISOString would shift the day for IST early-morning times)
+const toLocalDateString = (date) => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
+const OPERATOR_LOG_PRESETS = [
+  { id: 'all', label: 'All' },
+  { id: 'today', label: 'Today' },
+  { id: 'yesterday', label: 'Yesterday' },
+  { id: 'this_week', label: 'This Week' },
+  { id: 'last_week', label: 'Last Week' },
+  { id: 'this_month', label: 'This Month' },
+  { id: 'last_month', label: 'Last Month' },
+  { id: 'last_30', label: 'Last 30 Days' },
+  { id: 'date', label: 'Specific Date' },
+  { id: 'custom', label: 'Custom Range' },
+];
+
+// Weeks run Monday–Sunday
+const getPresetRange = (preset) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const shift = (base, days) => {
+    const d = new Date(base);
+    d.setDate(d.getDate() + days);
+    return d;
+  };
+  const weekStart = shift(today, -((today.getDay() + 6) % 7));
+
+  switch (preset) {
+    case 'all':
+      // No date limit: the request is sent without start/end
+      return { start: null, end: null };
+    case 'today':
+      return { start: toLocalDateString(today), end: toLocalDateString(today) };
+    case 'yesterday': {
+      const y = shift(today, -1);
+      return { start: toLocalDateString(y), end: toLocalDateString(y) };
+    }
+    case 'this_week':
+      return { start: toLocalDateString(weekStart), end: toLocalDateString(today) };
+    case 'last_week':
+      return { start: toLocalDateString(shift(weekStart, -7)), end: toLocalDateString(shift(weekStart, -1)) };
+    case 'this_month':
+      return { start: toLocalDateString(new Date(today.getFullYear(), today.getMonth(), 1)), end: toLocalDateString(today) };
+    case 'last_month':
+      return {
+        start: toLocalDateString(new Date(today.getFullYear(), today.getMonth() - 1, 1)),
+        end: toLocalDateString(new Date(today.getFullYear(), today.getMonth(), 0)),
+      };
+    case 'last_30':
+    default:
+      return { start: toLocalDateString(shift(today, -30)), end: toLocalDateString(today) };
+  }
+};
+
+const formatRangeDate = (value) =>
+  new Date(`${value}T00:00:00`).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+
+const PERIOD_INPUT_CLASS =
+  'border border-slate-200 rounded p-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white text-slate-700';
+
+// Period selector shared by report tabs. value = { preset, start, end }; children render on the right.
+const PeriodFilter = ({ value, onChange, children }) => {
+  const selectPreset = (preset) => {
+    const today = toLocalDateString(new Date());
+    if (preset === 'date') onChange({ preset, start: value.end || today, end: value.end || today });
+    else if (preset === 'custom') {
+      // Coming from "All" there is no range yet, so start from the last 30 days
+      onChange(value.start ? { ...value, preset } : { preset, ...getPresetRange('last_30') });
+    } else onChange({ preset, ...getPresetRange(preset) });
+  };
+
+  return (
+    <div className="p-2 pt-3 space-y-3">
+      <div className="flex flex-wrap items-center gap-1.5">
+        <Calendar size={14} className="text-slate-400 mr-1" />
+        {OPERATOR_LOG_PRESETS.map((preset) => (
+          <button
+            key={preset.id}
+            type="button"
+            onClick={() => selectPreset(preset.id)}
+            className={`px-3 py-1.5 rounded text-xs transition-colors ${
+              value.preset === preset.id ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            {preset.label}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap items-center gap-3">
+        {value.preset === 'date' ? (
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium text-slate-500">Date:</span>
+            <input
+              type="date"
+              className={PERIOD_INPUT_CLASS}
+              value={value.start}
+              max={toLocalDateString(new Date())}
+              onChange={(e) => e.target.value && onChange({ ...value, start: e.target.value, end: e.target.value })}
+            />
+          </div>
+        ) : value.preset === 'custom' ? (
+          <>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-slate-500">From:</span>
+              <input
+                type="date"
+                className={PERIOD_INPUT_CLASS}
+                value={value.start}
+                max={value.end}
+                onChange={(e) => e.target.value && onChange({ ...value, start: e.target.value })}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-slate-500">To:</span>
+              <input
+                type="date"
+                className={PERIOD_INPUT_CLASS}
+                value={value.end}
+                min={value.start}
+                onChange={(e) => e.target.value && onChange({ ...value, end: e.target.value })}
+              />
+            </div>
+          </>
+        ) : value.preset === 'all' ? (
+          <span className="text-xs text-slate-500">Showing all dates</span>
+        ) : (
+          <span className="text-xs text-slate-500">
+            Showing {formatRangeDate(value.start)}
+            {value.start !== value.end && ` – ${formatRangeDate(value.end)}`}
+          </span>
+        )}
+
+        {children && <div className="flex flex-wrap items-center gap-2 ml-auto text-xs">{children}</div>}
+      </div>
+    </div>
+  );
+};
+
+// On-time % of completed project stages whose completion date is known
+const stageOnTimePercent = (stats) => {
+  const judged = stats?.timelinesJudged ?? stats?.timelinesCompleted ?? 0;
+  return judged > 0 ? Math.min(100, Math.round(((stats.timelinesOnTime || 0) / judged) * 100)) : 100;
+};
+
+// Tabs with their own period (default "All"); other tabs keep dateRange.
+// project-manhours has no filter on screen, so it always stays on "All" (all-time totals).
+const PERIOD_TABS = ['operator-logs', 'project-manhours', 'inventory'];
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -88,6 +242,13 @@ const ReportsAnalytics = () => {
     start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
     end: new Date().toISOString().split('T')[0]
   });
+  // Each period tab keeps its own selection so changing one doesn't affect other report tabs
+  const [periodFilters, setPeriodFilters] = useState(() =>
+    Object.fromEntries(PERIOD_TABS.map((tab) => [tab, { preset: 'all', ...getPresetRange('all') }]))
+  );
+  const setPeriodFilter = (tab, value) => setPeriodFilters((prev) => ({ ...prev, [tab]: value }));
+  const [inventoryMinStock, setInventoryMinStock] = useState(50);
+  const [inventoryMinStockInput, setInventoryMinStockInput] = useState('50');
   const [exportDropdownOpen, setExportDropdownOpen] = useState(false);
   const [reportData, setReportData] = useState({
     overview: {
@@ -140,7 +301,8 @@ const ReportsAnalytics = () => {
           });
         }
       });
-      setOperatorRates(prev => ({ ...initialRates, ...prev }));
+      // Fresh server values win over old local edits
+      setOperatorRates(prev => ({ ...prev, ...initialRates }));
     }
   }, [reportData]);
 
@@ -212,10 +374,12 @@ const ReportsAnalytics = () => {
   const fetchReportData = useCallback(async () => {
     try {
       setLoading(true);
-      const params = {
-        start: dateRange.start,
-        end: dateRange.end
-      };
+      const range = periodFilters[selectedReport] || dateRange;
+      // "All" has no range, so start/end are left out and the backend returns every date
+      const params = range.start && range.end ? { start: range.start, end: range.end } : {};
+      if (selectedReport === 'inventory') {
+        params.minStock = inventoryMinStock;
+      }
       if (selectedReport === 'projects') {
         params.projectId = selectedProjectId;
       }
@@ -230,7 +394,16 @@ const ReportsAnalytics = () => {
     } finally {
       setLoading(false);
     }
-  }, [selectedReport, dateRange, selectedProjectId]);
+  }, [selectedReport, dateRange, selectedProjectId, periodFilters, inventoryMinStock]);
+
+  const operatorLogSummary = useMemo(() => {
+    const logs = reportData?.['operator-logs'] || [];
+    return {
+      entries: logs.length,
+      hours: logs.reduce((sum, log) => sum + (parseFloat(log.actual_hours) || 0), 0),
+      operators: new Set(logs.map((log) => log.operator_name).filter(Boolean)).size,
+    };
+  }, [reportData]);
 
   useEffect(() => {
     fetchReportData();
@@ -252,37 +425,52 @@ const ReportsAnalytics = () => {
         };
       });
 
-      await axios.post('/reports/operator-rates', { rates: payload });
+      const response = await axios.post('/reports/operator-rates', { rates: payload });
+      const notSaved = response.data?.notSaved || [];
+
+      // A rate belongs to the operator (users table), so apply it in every project that operator appears in
+      const savedRates = {};
+      payload.forEach(entry => {
+        if (!notSaved.includes(entry.operator_name)) savedRates[String(entry.operator_id)] = entry.hourly_rate;
+      });
 
       setReportData(prev => {
         const currentProjects = prev['project-manhours'] || [];
-        const updatedProjects = currentProjects.map(p => {
-          if (String(p.root_card_id) === String(rootCardId)) {
-            const updatedOperators = (p.operators || []).map(op => {
-              const rateKey = `${rootCardId}_${op.operator_id}`;
-              return {
-                ...op,
-                hourly_rate: parseFloat(operatorRates[rateKey] || 0)
-              };
-            });
-            return {
-              ...p,
-              operators: updatedOperators
-            };
-          }
-          return p;
-        });
+        const updatedProjects = currentProjects.map(p => ({
+          ...p,
+          operators: (p.operators || []).map(op =>
+            savedRates[String(op.operator_id)] !== undefined
+              ? { ...op, hourly_rate: savedRates[String(op.operator_id)] }
+              : op
+          )
+        }));
         return {
           ...prev,
           'project-manhours': updatedProjects
         };
       });
+      setOperatorRates(prev => {
+        const next = { ...prev };
+        (reportData?.['project-manhours'] || []).forEach(p => {
+          (p.operators || []).forEach(op => {
+            const rate = savedRates[String(op.operator_id)];
+            if (rate !== undefined) next[`${p.root_card_id}_${op.operator_id}`] = String(rate);
+          });
+        });
+        return next;
+      });
 
       setEditingProjectMap(prev => ({ ...prev, [rootCardId]: false }));
-      setSaveSuccessMsg('Operator rates saved to database successfully!');
-      setTimeout(() => setSaveSuccessMsg(''), 3500);
+      setSaveSuccessMsg(
+        notSaved.length > 0
+          ? `Rates saved, but these operators are not in the user list and were not saved: ${notSaved.join(', ')}`
+          : 'Operator rates saved to database successfully!'
+      );
+      setTimeout(() => setSaveSuccessMsg(''), notSaved.length > 0 ? 8000 : 3500);
     } catch (err) {
       console.error('Failed to save operator rates:', err);
+      setSaveSuccessMsg(err.response?.data?.message || 'Failed to save operator rates');
+      setTimeout(() => setSaveSuccessMsg(''), 6000);
     } finally {
       setSavingRates(false);
     }
@@ -389,10 +577,16 @@ const ReportsAnalytics = () => {
     },
     { key: 'totalOrders', label: 'Total Orders', sortable: true },
     {
+      key: 'totalDeliveries',
+      label: 'Deliveries (GRNs)',
+      sortable: true,
+      render: (value) => value ?? 0,
+    },
+    {
       key: 'onTimeDelivery',
       label: 'On-Time Delivery',
       sortable: true,
-      render: (value) => `${value}%`,
+      render: (value, row) => (row.totalDeliveries > 0 ? `${value}%` : <span className="text-slate-400">No deliveries</span>),
     },
     {
       key: 'qualityRating',
@@ -404,7 +598,7 @@ const ReportsAnalytics = () => {
           {[...Array(5)].map((_, i) => (
             <Star
               key={i}
-              className={`w-4 h-4 ${i < value ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`}
+              className={`w-4 h-4 ${i < Math.floor(value) ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`}
             />
           ))}
         </div>
@@ -449,9 +643,10 @@ const ReportsAnalytics = () => {
       sortable: true,
       render: (_, row) => (
         <span className={`px-3 py-1 rounded  text-xs ${
+          row.currentStock < 0 ? 'bg-rose-200 text-rose-800' :
           row.currentStock < row.minStock ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'
         }`}>
-          {row.currentStock < row.minStock ? 'Low Stock' : 'In Stock'}
+          {row.currentStock < 0 ? 'Negative Stock' : row.currentStock < row.minStock ? 'Low Stock' : 'In Stock'}
         </span>
       ),
     },
@@ -493,8 +688,7 @@ const ReportsAnalytics = () => {
       sortable: true,
       render: (_, row) => {
         if (row.timelinesTotal === 0) return '-';
-        const rate = row.timelinesCompleted > 0 ? Math.round((row.timelinesOnTime / row.timelinesCompleted) * 100) : 100;
-        return `${rate}%`;
+        return `${row.projectOnTimeRate ?? 100}%`;
       }
     },
     {
@@ -513,7 +707,7 @@ const ReportsAnalytics = () => {
           {[...Array(5)].map((_, i) => (
             <Star
               key={i}
-              className={`w-4 h-4 ${i < value ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`}
+              className={`w-4 h-4 ${i < Math.floor(value) ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`}
             />
           ))}
         </div>
@@ -663,7 +857,11 @@ const ReportsAnalytics = () => {
     return (
       <div className="p-4 bg-slate-50/80 border-t border-b border-indigo-100/60 rounded-b space-y-4 text-left">
         {saveSuccessMsg && (
-          <div className="p-2.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs rounded-lg flex items-center justify-between shadow-sm animate-fade-in">
+          <div className={`p-2.5 border text-xs rounded-lg flex items-center justify-between shadow-sm animate-fade-in ${
+            saveSuccessMsg.includes('successfully')
+              ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+              : 'bg-amber-50 border-amber-200 text-amber-800'
+          }`}>
             <span className="font-medium">{saveSuccessMsg}</span>
           </div>
         )}
@@ -1012,12 +1210,13 @@ const ReportsAnalytics = () => {
     const totalTasks = tasks.length;
     const completedTasks = tasks.filter(t => t.status === 'Completed' || t.status === 'COMPLETED').length;
     const pendingTasks = tasks.filter(t => t.status === 'Pending' || t.status === 'In Progress').length;
+    // Overdue only once the whole due day has passed (same rule as the table and backend)
     const overdueTasks = tasks.filter(t => {
       const isCompleted = t.status === 'Completed' || t.status === 'COMPLETED';
       if (isCompleted) return false;
-      const today = new Date();
-      today.setHours(23, 59, 59, 999);
-      return new Date(t.due_date) < today;
+      const dueEnd = new Date(t.due_date);
+      dueEnd.setHours(23, 59, 59, 999);
+      return dueEnd < new Date();
     }).length;
     
     const onTimeCompleted = tasks.filter(t => {
@@ -1110,9 +1309,7 @@ const ReportsAnalytics = () => {
     setTimeout(() => {
       try {
         const exportData = filteredEmployees.map((emp) => {
-          const onTimeRate = emp.timelinesTotal > 0
-            ? `${emp.timelinesCompleted > 0 ? Math.round((emp.timelinesOnTime / emp.timelinesCompleted) * 100) : 100}%`
-            : '-';
+          const onTimeRate = emp.timelinesTotal > 0 ? `${emp.projectOnTimeRate ?? 100}%` : '-';
           return {
             "Employee ID": emp.id,
             "Employee Name": emp.name,
@@ -1256,9 +1453,7 @@ const ReportsAnalytics = () => {
         const tableData = filteredEmployees.map(emp => {
           const tasksStr = `${emp.tasksCompleted || 0} / ${emp.tasksTotal || 0}`;
           const stagesStr = emp.timelinesTotal > 0 ? `${emp.timelinesCompleted || 0} / ${emp.timelinesTotal}` : '-';
-          const onTimeStr = emp.timelinesTotal > 0
-            ? `${emp.timelinesCompleted > 0 ? Math.round((emp.timelinesOnTime / emp.timelinesCompleted) * 100) : 100}%`
-            : '-';
+          const onTimeStr = emp.timelinesTotal > 0 ? `${emp.projectOnTimeRate ?? 100}%` : '-';
           return [
             emp.name,
             emp.department || 'N/A',
@@ -1321,9 +1516,7 @@ const ReportsAnalytics = () => {
           { Metric: "Avg Hours / Day", Value: employeeWorkingHours.daily?.length > 0 ? (employeeWorkingHours.total_hours / employeeWorkingHours.daily.length).toFixed(1) : 0 }
         );
       } else {
-        const rate = (employeeWorkingHours.timelinesCompleted || 0) > 0 
-          ? `${Math.round(((employeeWorkingHours.timelinesOnTime || 0) / employeeWorkingHours.timelinesCompleted) * 100)}%` 
-          : "100%";
+        const rate = `${stageOnTimePercent(employeeWorkingHours)}%`;
         summaryData.push(
           { Metric: "Ad-hoc Tasks Assigned", Value: employeeWorkingHours.tasksTotal || 0 },
           { Metric: "Ad-hoc Tasks Completed", Value: employeeWorkingHours.tasksCompleted || 0 },
@@ -1468,9 +1661,7 @@ const ReportsAnalytics = () => {
           doc.setFont('Helvetica', 'normal');
           doc.text(`${employeeWorkingHours.tasksCompleted || 0} / ${employeeWorkingHours.tasksTotal || 0} completed`, 42, 78);
           doc.text(`${employeeWorkingHours.timelinesCompleted || 0} / ${employeeWorkingHours.timelinesTotal || 0} completed`, 45, 84);
-          const rate = (employeeWorkingHours.timelinesCompleted || 0) > 0 
-            ? `${Math.round(((employeeWorkingHours.timelinesOnTime || 0) / employeeWorkingHours.timelinesCompleted) * 100)}%` 
-            : "100%";
+          const rate = `${stageOnTimePercent(employeeWorkingHours)}%`;
           doc.text(rate, 158, 78);
         }
 
@@ -1786,7 +1977,7 @@ const ReportsAnalytics = () => {
                         sortable: true,
                         render: (value) => (
                           <span className={`px-2 py-0.5 rounded text-[10px] font-medium ${
-                            value === 'Completed On Time' ? 'bg-emerald-100 text-emerald-700' :
+                            value === 'Completed On Time' || value === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
                             value === 'Completed with Delay' ? 'bg-amber-100 text-amber-700' :
                             value === 'Pending (On Time)' ? 'bg-blue-100 text-blue-700' :
                             value === 'Overdue' ? 'bg-red-100 text-red-700' :
@@ -2001,13 +2192,36 @@ const ReportsAnalytics = () => {
               <span>Inventory Movement Report</span>
             </div>
           </div>
+          {/* Period applies to Items Received / Issued; stock levels are always current */}
+          <PeriodFilter
+            value={periodFilters.inventory}
+            onChange={(value) => setPeriodFilter('inventory', value)}
+          >
+            <label className="flex items-center gap-2 text-slate-500">
+              Low stock below
+              <input
+                type="number"
+                min="0"
+                className={`${PERIOD_INPUT_CLASS} w-20`}
+                value={inventoryMinStockInput}
+                onChange={(e) => setInventoryMinStockInput(e.target.value)}
+                onBlur={() => {
+                  const value = parseFloat(inventoryMinStockInput);
+                  if (Number.isFinite(value) && value >= 0) setInventoryMinStock(value);
+                  else setInventoryMinStockInput(String(inventoryMinStock));
+                }}
+                onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
+              />
+            </label>
+          </PeriodFilter>
           <div className="p-2 space-y-2">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
               {[
                 { label: 'Total Items', value: reportData?.inventory?.totalItems || 0, color: 'bg-blue-500', icon: Package },
-                { label: 'Items Received', value: reportData?.inventory?.itemsReceived || 0, color: 'bg-emerald-500', icon: TrendingUp },
-                { label: 'Items Issued', value: reportData?.inventory?.itemsIssued || 0, color: 'bg-amber-500', icon: TrendingUp },
+                { label: 'Items Received (period)', value: reportData?.inventory?.itemsReceived || 0, color: 'bg-emerald-500', icon: TrendingUp },
+                { label: 'Items Issued (period)', value: reportData?.inventory?.itemsIssued || 0, color: 'bg-amber-500', icon: TrendingUp },
                 { label: 'Low Stock Alerts', value: reportData?.inventory?.lowStockItems || 0, color: 'bg-red-500', icon: AlertTriangle },
+                { label: 'Negative Stock', value: reportData?.inventory?.negativeStockItems || 0, color: 'bg-rose-700', icon: AlertTriangle },
               ].map((metric, idx) => {
                 const Icon = metric.icon;
                 return (
@@ -2063,9 +2277,10 @@ const ReportsAnalytics = () => {
                   <CheckCircle2 className="w-8 h-8 text-indigo-600 mb-2" />
                   <span className="text-2xl font-bold text-indigo-700">
                     {(() => {
-                      const totalStages = filteredEmployees.reduce((sum, e) => sum + (e.timelinesTotal || 0), 0);
+                      // Same rule as the table rows: on-time share of completed stages with a known completion date
+                      const totalJudged = filteredEmployees.reduce((sum, e) => sum + (e.timelinesJudged ?? e.timelinesCompleted ?? 0), 0);
                       const totalOnTime = filteredEmployees.reduce((sum, e) => sum + (e.timelinesOnTime || 0), 0);
-                      return totalStages > 0 ? Math.round((totalOnTime / totalStages) * 100) : 100;
+                      return totalJudged > 0 ? Math.round((totalOnTime / totalJudged) * 100) : 100;
                     })()}%
                   </span>
                   <span className="text-xs text-indigo-600 mt-1 uppercase font-semibold tracking-wider">Project Stages On-Time</span>
@@ -2172,12 +2387,29 @@ const ReportsAnalytics = () => {
               <span>Operator Daily Work Logs Report</span>
             </div>
           </div>
+
+          <PeriodFilter
+            value={periodFilters['operator-logs']}
+            onChange={(value) => setPeriodFilter('operator-logs', value)}
+          >
+            <span className="px-2 py-1 rounded bg-slate-100 text-slate-700">
+              Entries: <strong>{operatorLogSummary.entries}</strong>
+            </span>
+            <span className="px-2 py-1 rounded bg-blue-50 text-blue-700">
+              Total Hours: <strong>{operatorLogSummary.hours.toFixed(2)}</strong>
+            </span>
+            <span className="px-2 py-1 rounded bg-emerald-50 text-emerald-700">
+              Operators: <strong>{operatorLogSummary.operators}</strong>
+            </span>
+          </PeriodFilter>
+
           <div className="p-2">
             <DataTable
               columns={operatorLogsColumns}
               data={reportData?.['operator-logs'] || []}
               striped={true}
               hover={true}
+              emptyMessage="No operator logs found for the selected period."
             />
           </div>
         </Card>
@@ -2185,12 +2417,26 @@ const ReportsAnalytics = () => {
 
       {selectedReport === 'project-manhours' && (
         <Card className=" transition-shadow border border-slate-100">
-          <div className="border-b border-slate-100 pb-4">
+          <div className="border-b border-slate-100 pb-4 flex flex-wrap items-center justify-between gap-2">
             <div className="flex items-center text-xs gap-2 text-lg">
               <div className="p-2 bg-blue-50 rounded">
                 <Clock className="w-3 h-3 text-blue-600" />
               </div>
               <span>Project Manhours Consumed Report</span>
+            </div>
+            {/* All-time totals per project (no period filter on this tab) */}
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <span className="px-2 py-1 rounded bg-slate-100 text-slate-700">
+                Projects: <strong>{(reportData?.['project-manhours'] || []).length}</strong>
+              </span>
+              <span className="px-2 py-1 rounded bg-blue-50 text-blue-700">
+                Total Manhours:{' '}
+                <strong>
+                  {(reportData?.['project-manhours'] || [])
+                    .reduce((sum, p) => sum + (parseFloat(p.total_hours) || 0), 0)
+                    .toFixed(2)}
+                </strong>
+              </span>
             </div>
           </div>
           <div className="p-2">
@@ -2367,9 +2613,7 @@ const ReportsAnalytics = () => {
                 <div className="bg-emerald-50 border border-emerald-100 p-4 rounded text-center">
                   <Clock className="w-6 h-6 text-emerald-600 mx-auto mb-2" />
                   <p className="text-2xl  text-emerald-700">
-                    {((employeeWorkingHours.timelinesCompleted || 0) > 0 
-                      ? Math.round(((employeeWorkingHours.timelinesOnTime || 0) / employeeWorkingHours.timelinesCompleted) * 100) 
-                      : 100)}%
+                    {stageOnTimePercent(employeeWorkingHours)}%
                   </p>
                   <p className="text-xs text-emerald-600 ">Project Stage On-Time</p>
                 </div>
