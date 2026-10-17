@@ -12,15 +12,137 @@ import {
   CheckCircle,
   ArrowRight,
   ClipboardList,
-  Package
+  Package,
+  AlertTriangle,
+  ExternalLink
 } from "lucide-react";
 import axios from "../../utils/api";
+import { getServerUrl } from "../../utils/fileUtils";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Badge from "../../components/ui/Badge";
 import Button from "../../components/ui/Button";
 import DataTable from "../../components/ui/DataTable/DataTable";
 import { toast } from "react-toastify";
+
+const formatQty = (val) => {
+  const n = parseFloat(val);
+  return isNaN(n) ? "-" : parseFloat(n.toFixed(3));
+};
+
+const ReportLink = ({ path, label, className }) =>
+  path ? (
+    <a
+      href={getServerUrl(path)}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`inline-flex items-center gap-1 hover:underline ${className}`}
+    >
+      <ExternalLink size={11} /> {label}
+    </a>
+  ) : null;
+
+const ShortageSourcePanel = ({ source, remarks }) => {
+  if (!source) {
+    return (
+      <div className="p-3 bg-amber-50/60 border border-amber-200 rounded text-xs text-amber-800 flex items-center gap-2">
+        <AlertTriangle size={14} />
+        This request was auto-created by Inventory for shortage material. {remarks}
+      </div>
+    );
+  }
+
+  const shortageItems = source.items.filter((item) => item.shortage_qty > 0);
+  const infoTiles = [
+    { label: "Source GRN", value: source.grn_number },
+    { label: "Purchase Order", value: source.po_number },
+    { label: "Supplier", value: source.vendor_name },
+    { label: "GRN Date", value: source.grn_date ? new Date(source.grn_date).toLocaleDateString() : "-" },
+    {
+      label: "Inspection",
+      value: [source.inspection_type, source.inspection_vendor_name].filter(Boolean).join(" · ") || "-",
+    },
+  ];
+
+  return (
+    <div className="border border-amber-200 rounded overflow-hidden">
+      <div className="px-3 py-2 bg-amber-50 border-b border-amber-200">
+        <h4 className="text-xs text-amber-700 flex items-center gap-1.5">
+          <AlertTriangle size={13} /> Shortage Source — raised by Inventory on material release
+        </h4>
+        <p className="text-xs text-amber-700/80 mt-0.5">
+          Material against {source.grn_number} was not fully accepted, so the balance is requested again from Procurement.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 p-3 bg-white dark:bg-slate-900">
+        {infoTiles.map((tile) => (
+          <div key={tile.label}>
+            <p className="text-xs text-slate-400">{tile.label}</p>
+            <p className="text-sm text-slate-900 dark:text-white">{tile.value || "-"}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="overflow-x-auto border-t border-amber-100">
+        <table className="w-full text-xs">
+          <thead className="bg-slate-50 dark:bg-slate-800 text-slate-500">
+            <tr>
+              <th className="p-2 text-left">Material</th>
+              <th className="p-2 text-center">PO Qty</th>
+              <th className="p-2 text-center">Received</th>
+              <th className="p-2 text-center">Accepted</th>
+              <th className="p-2 text-center">Rejected in QC</th>
+              <th className="p-2 text-center">Not Received</th>
+              <th className="p-2 text-center">Shortage</th>
+              <th className="p-2 text-left">QC Documents</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+            {shortageItems.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="p-3 text-center text-slate-500 italic">
+                  No shortage lines found on this GRN.
+                </td>
+              </tr>
+            ) : (
+              shortageItems.map((item, idx) => {
+                const notReceived = Math.max(0, item.ordered_qty - item.received_qty);
+                return (
+                  <tr key={`${item.item_code}-${idx}`}>
+                    <td className="p-2">
+                      <div className="text-slate-900 dark:text-slate-200">{item.material_name}</div>
+                      <div className="text-slate-400">
+                        {[item.item_code, item.item_group].filter(Boolean).join(" · ")}
+                      </div>
+                    </td>
+                    <td className="p-2 text-center text-slate-500">{formatQty(item.ordered_qty)}</td>
+                    <td className="p-2 text-center text-blue-600">{formatQty(item.received_qty)}</td>
+                    <td className="p-2 text-center text-emerald-600">{formatQty(item.accepted_qty)}</td>
+                    <td className="p-2 text-center text-red-600">{formatQty(item.rejected_qty)}</td>
+                    <td className="p-2 text-center text-slate-600">{formatQty(notReceived)}</td>
+                    <td className="p-2 text-center">
+                      <span className="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">
+                        {formatQty(item.shortage_qty)} {item.unit}
+                      </span>
+                    </td>
+                    <td className="p-2">
+                      <div className="flex flex-col gap-0.5">
+                        <ReportLink path={item.rejected_report} label="Rejected Report" className="text-red-600" />
+                        <ReportLink path={item.accepted_report} label="Accepted Report" className="text-emerald-600" />
+                        {!item.rejected_report && !item.accepted_report && <span className="text-slate-400">-</span>}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+};
 
 const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate, readOnly = false }) => {
   const [request, setRequest] = useState(null);
@@ -103,8 +225,13 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
               <ClipboardList size={15} />
             </div>
             <div>
-              <h3 className="text-md text-slate-900 dark:text-white">
+              <h3 className="text-md text-slate-900 dark:text-white flex items-center gap-2">
                 {loading ? "Loading..." : `Request: ${request?.request_number}`}
+                {!loading && request?.type === "shortage" && (
+                  <Badge variant="warning" className="flex items-center gap-1">
+                    <AlertTriangle size={11} /> Shortage Request
+                  </Badge>
+                )}
               </h3>
               {!loading && <p className="text-xs text-blue-600 dark:text-blue-400 ">BOM Reference: {request?.bom_number}</p>}
             </div>
@@ -149,6 +276,11 @@ const MaterialRequestDetailModal = ({ isOpen, onClose, requestId, onStatusUpdate
                   <p className="text-sm  text-slate-900 dark:text-white">{new Date(request.created_at).toLocaleDateString()}</p>
                 </div>
               </div>
+
+              {/* Shortage Source (auto-created from Inventory GRN material release) */}
+              {request.type === "shortage" && (
+                <ShortageSourcePanel source={request.shortageSource} remarks={request.remarks} />
+              )}
 
               {/* Remarks */}
               {request.remarks && (

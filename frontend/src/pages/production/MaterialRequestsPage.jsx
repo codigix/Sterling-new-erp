@@ -14,6 +14,7 @@ import {
   Calendar,
   CheckCircle,
   ArrowRight,
+  AlertTriangle,
 } from "lucide-react";
 import axios from "../../utils/api";
 import { useAuth } from "../../context/AuthContext";
@@ -33,6 +34,7 @@ const MaterialRequestsPage = ({ embed = false }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [rootCardFilter, setRootCardFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
   const [selectedRequestId, setSelectedRequestId] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [submittingId, setSubmittingId] = useState(null);
@@ -131,9 +133,13 @@ const MaterialRequestsPage = ({ embed = false }) => {
         req.root_card_id?.toString() === rootCardFilter ||
         req.project_name?.toLowerCase().includes(rootCardFilter.toLowerCase());
 
-      return matchesSearch && matchesStatus && matchesRootCard;
+      const matchesType =
+        typeFilter === "all" ||
+        (typeFilter === "shortage" ? req.type === "shortage" : req.type !== "shortage");
+
+      return matchesSearch && matchesStatus && matchesRootCard && matchesType;
     });
-  }, [requests, searchTerm, statusFilter, rootCardFilter]);
+  }, [requests, searchTerm, statusFilter, rootCardFilter, typeFilter]);
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -176,7 +182,23 @@ const MaterialRequestsPage = ({ embed = false }) => {
     {
       key: "request_number",
       label: "REQUEST NO",
-      render: (val) => <span className=" text-blue-600">{val}</span>,
+      render: (val, row) => {
+        if (row.type !== "shortage") return <span className=" text-blue-600">{val}</span>;
+        const grnNumber = /GRN\s+(\S+)/i.exec(row.remarks || "")?.[1];
+        return (
+          <div className="flex flex-col gap-0.5">
+            <span className="flex items-center gap-1.5">
+              <span className=" text-blue-600">{val}</span>
+              <Badge variant="warning" className="flex items-center gap-1">
+                <AlertTriangle size={11} /> Shortage
+              </Badge>
+            </span>
+            {grnNumber && (
+              <span className="text-xs text-slate-500">From Inventory · {grnNumber}</span>
+            )}
+          </div>
+        );
+      },
     },
     {
       key: "bom_number",
@@ -268,6 +290,17 @@ const MaterialRequestsPage = ({ embed = false }) => {
             <option value="partially_received">Partially Received</option>
             <option value="received">Received</option>
             <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div className="w-full sm:w-auto">
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            className="w-full p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded text-xs focus:ring-2 focus:ring-blue-500/20 outline-none transition-all"
+          >
+            <option value="all">All Types</option>
+            <option value="regular">BOM Requests</option>
+            <option value="shortage">Shortage Requests</option>
           </select>
         </div>
         <Button
