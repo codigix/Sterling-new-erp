@@ -445,7 +445,12 @@ const QCInspectionsPage = () => {
             </button>
           ) : (
             <button
-              onClick={() => navigate(`/department/quality/material-inspection?rootCardId=${row.rootCardId}`)}
+              onClick={() => {
+                // Open Material Inspection pre-filtered to this GRN (and its project when known)
+                const params = new URLSearchParams({ grnNumber: row.id });
+                if (row.rootCardId) params.set("rootCardId", row.rootCardId);
+                navigate(`/department/quality/material-inspection?${params.toString()}`);
+              }}
               className="p-2 bg-blue-600 hover:bg-blue-700 text-white rounded text-xs transition-all shadow-blue-200"
             >
               Do Inspection

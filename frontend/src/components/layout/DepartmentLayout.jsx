@@ -33,7 +33,8 @@ import {
   History as HistoryIcon,
   PackageCheck,
   ShieldCheck,
-  Plus
+  Plus,
+  UserCog
 } from "lucide-react";
 
 const DepartmentLayout = () => {
@@ -446,6 +447,19 @@ const DepartmentLayout = () => {
                   </li>
                   <li>
                     <Link
+                      to="/department/production/available-stock"
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
+                        isActive("/department/production/available-stock")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <Warehouse size={15} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Available Stock</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
                       to="/department/production/plans"
                       className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
                         isActive("/department/production/plans")
@@ -507,6 +521,19 @@ const DepartmentLayout = () => {
                     >
                       <Users size={15} className="flex-shrink-0" />
                       {!sidebarCollapsed && <span className="ml-3">Employee Work Logs</span>}
+                    </Link>
+                  </li>
+                  <li>
+                    <Link
+                      to="/department/production/operators"
+                      className={`flex items-center text-xs p-2 text-xs  rounded transition-colors ${
+                        isActive("/department/production/operators")
+                          ? "bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300"
+                          : "text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700"
+                      }`}
+                    >
+                      <UserCog size={15} className="flex-shrink-0" />
+                      {!sidebarCollapsed && <span className="ml-3">Operators</span>}
                     </Link>
                   </li>
                   <li>

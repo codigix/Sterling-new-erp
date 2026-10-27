@@ -42,6 +42,7 @@ import { renderDimensions } from "../../utils/dimensionUtils";
 import DataTable from "../../components/ui/DataTable/DataTable";
 import CreateOutwardChallanModal from "../../components/production/CreateOutwardChallanModal";
 import ViewOutwardChallanModal from "../../components/production/ViewOutwardChallanModal";
+import TakeFromStockModal from "../../components/production/TakeFromStockModal";
 const AccordionSection = memo(({ title, children, itemCount = 0 }) => (
   <div className="">
     <div className="p-2 flex items-center justify-between select-none bg-slate-50/80 dark:bg-slate-800/50">
@@ -1367,6 +1368,10 @@ const CuttingCalculator = ({ item, serials, onSave, onCancel }) => {
 };
 
 const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
+  const [isStockPickerOpen, setIsStockPickerOpen] = useState(false);
+  // Pieces chosen via "Take from Stock": only in this form until the MCR is finalized
+  // (then stocked out, and only the ones used in the report). Each: { ...piece, target_project, root_card_id }
+  const [stockPicks, setStockPicks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [materials, setMaterials] = useState([]);
   const [reportEntries, setReportEntries] = useState([]); // The summary table
@@ -1408,7 +1413,9 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
       return `${formatDim(d.w)}x${formatDim(d.h || d.t)} x ${formatDim(d.l)}`;
     } else if (group.includes("PIPE") || group.includes("TUBE")) {
       if (group.includes("SQUARE") || group.includes("RECT")) {
-        return `${formatDim(d.w)}x${formatDim(d.h)}x${formatDim(d.t)} x ${formatDim(d.l)}`;
+        // Square tubes store one side only: height = width
+        const h = d.h || (group.includes("SQUARE") ? d.w : 0);
+        return `${formatDim(d.w)}x${formatDim(h)}x${formatDim(d.t)} x ${formatDim(d.l)}`;
       } else {
         return `Ø${formatDim(d.od || d.w || d.d)}x${formatDim(d.t)} x ${formatDim(d.l)}`;
       }
@@ -1454,6 +1461,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
   useEffect(() => {
     if (isOpen && plan) {
       const init = async () => {
+        setStockPicks([]);
         await fetchMaterials();
         if (plan.mcr_id) {
           await fetchMCRDetails();
@@ -1710,11 +1718,49 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
     }
   ], [reportEntries]);
 
+  // Released material + pieces picked from stock (shown as a "From Stock" entry per project, same shape
+  // as a Material Issue entry so the item / ST lists and cutting logic treat them the same way)
+  const allMaterials = useMemo(() => {
+    const released = Array.isArray(materials) ? materials : [];
+    if (stockPicks.length === 0) return released;
+    const byProject = new Map();
+    stockPicks.forEach((p) => {
+      if (!byProject.has(p.target_project)) {
+        byProject.set(p.target_project, {
+          id: `stock-${p.target_project}`,
+          entry_no: "From Stock",
+          project_name: p.target_project,
+          root_card_id: p.root_card_id,
+          items: [],
+        });
+      }
+      const entry = byProject.get(p.target_project);
+      let item = entry.items.find((i) => i.item_name === p.item_name && i.item_code === p.item_code);
+      if (!item) {
+        item = {
+          item_name: p.item_name,
+          item_code: p.item_code,
+          item_group: p.item_group,
+          material_grade: p.material_grade,
+          uom: p.uom,
+          length: p.length, width: p.width, thickness: p.thickness, diameter: p.diameter,
+          outer_diameter: p.outer_diameter, height: p.height, side1: p.side1, side2: p.side2,
+          web_thickness: p.web_thickness, flange_thickness: p.flange_thickness,
+          density: p.density, unit_weight: p.unit_weight,
+          serials: [],
+        };
+        entry.items.push(item);
+      }
+      item.serials.push({ ...p, from_stock: true });
+    });
+    return [...released, ...byProject.values()];
+  }, [materials, stockPicks]);
+
   const uniqueItemOptions = useMemo(() => {
     const items = new Map();
-    if (!materials || !Array.isArray(materials)) return [];
-    
-    materials.forEach((entry) => {
+    if (!allMaterials || !Array.isArray(allMaterials)) return [];
+
+    allMaterials.forEach((entry) => {
       if (!entry.items || !Array.isArray(entry.items)) return;
       
       entry.items.forEach((item) => {
@@ -1763,7 +1809,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
       });
     });
     return Array.from(items.values());
-  }, [materials]);
+  }, [allMaterials]);
 
   const selectedItemGroup = useMemo(() => {
     if (!selectedItemCode) {
@@ -1780,8 +1826,8 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
     const options = [];
     
     // selectedItemCode is now our composite key: "item_name_item_code"
-    
-    materials.forEach((entry) => {
+
+    allMaterials.forEach((entry) => {
       // Find item that matches BOTH name and code (to distinguish GEN-SIZE items)
       const item = entry.items.find(i => `${i.item_name || i.material_name}_${i.item_code}` === selectedItemCode);
       if (item) {
@@ -1798,7 +1844,11 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
           if (isFullyUsedInSession) return;
 
           const isInSession = reportEntries.some(re => re.full_data?.selectedSerial === serial.serial_number);
-          const isCut = serial.inspection_status === "C" || serial.inspection_status === "CUT";
+          // Off-cuts ("-R…" serials) are stored as QC 'Accepted', so detect them by serial too
+          const isCut =
+            serial.inspection_status === "C" ||
+            serial.inspection_status === "CUT" ||
+            /-R\d+$/.test(serial.serial_number || "");
 
           // Calculate weight if it's 0 in DB (to prevent missing weight in UI)
           let currentWeight = Number(serial.unit_weight) || 0;
@@ -1843,7 +1893,9 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
               currentWeight = (area * l * density) / 1000000;
             } else if ((group.includes("PIPE") || group.includes("TUBE")) && (group.includes("SQUARE") || group.includes("RECT"))) {
               const outerArea = w * effectiveH;
-              const innerArea = Math.max(0, (w - 2 * effectiveT) * (effectiveH - 2 * effectiveT));
+              // Clamp each inner side: if the wall is ≥ half the side the tube is solid (no hollow).
+              // Clamping only the product turned two negative sides into a positive hollow → 0 kg.
+              const innerArea = Math.max(0, w - 2 * effectiveT) * Math.max(0, effectiveH - 2 * effectiveT);
               currentWeight = ((outerArea - innerArea) * l * density) / 1000000;
             } else if (group.includes("PIPE") || group.includes("TUBE") || group.includes("ROUND")) {
               const effectiveOD = od || d || w;
@@ -1899,7 +1951,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
               absoluteOriginalWeight = (area * l * density) / 1000000;
             } else if ((group.includes("PIPE") || group.includes("TUBE")) && (group.includes("SQUARE") || group.includes("RECT"))) {
               const outerArea = w * effectiveH;
-              const innerArea = Math.max(0, (w - 2 * effectiveT) * (effectiveH - 2 * effectiveT));
+              const innerArea = Math.max(0, w - 2 * effectiveT) * Math.max(0, effectiveH - 2 * effectiveT);
               absoluteOriginalWeight = ((outerArea - innerArea) * l * density) / 1000000;
             } else if (group.includes("PIPE") || group.includes("TUBE") || group.includes("ROUND")) {
               const effectiveOD = od || d || w;
@@ -1922,7 +1974,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
           
           options.push({
             value: serial.serial_number,
-            label: `${serial.serial_number} [${parseFloat(currentWeight.toFixed(3))} Kg]${isCut ? " (ALREADY CUT)" : ""}${isConsumed ? " (FULLY CONSUMED)" : ""}${isInSession ? " (IN TABLE)" : ""}`,
+            label: `${serial.serial_number} [${parseFloat(currentWeight.toFixed(3))} Kg]${serial.from_stock ? " (FROM STOCK)" : ""}${isCut ? " (ALREADY CUT)" : ""}${isConsumed ? " (FULLY CONSUMED)" : ""}${isInSession ? " (IN TABLE)" : ""}`,
             item: item,
             entry_no: entry.entry_no,
             remaining: 1,
@@ -1961,7 +2013,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
       }
     });
     return options;
-  }, [materials, selectedItemCode, reportEntries]);
+  }, [allMaterials, selectedItemCode, reportEntries]);
 
   const remainingInfo = useMemo(() => {
     if (!selectedItem || !selectedItem.dims) return null;
@@ -1981,7 +2033,9 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
     const rawL = parseFloat(selectedItem.dims.l) || 0;
     const rawW = parseFloat(selectedItem.dims.w) || 0;
     const rawT = parseFloat(selectedItem.dims.t) || 0;
-    const rawH = parseFloat(selectedItem.dims.h) || 0;
+    // Square sections store only one side: height = width (same rule as the ST list and the H field),
+    // otherwise square-tube outer area = W × 0 and "Used in Job" stays 0 for any cut length
+    const rawH = parseFloat(selectedItem.dims.h) || (group.includes("SQUARE") ? rawW : 0);
     const rawD = parseFloat(selectedItem.dims.d) || 0;
     const rawOD = parseFloat(selectedItem.dims.od) || 0;
     const rawTW = parseFloat(selectedItem.dims.tw) || 0;
@@ -2102,7 +2156,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
     }
     else if ((group.includes("PIPE") || group.includes("TUBE")) && (group.includes("SQUARE") || group.includes("RECT"))) {
       const outerArea = rawW * rawH;
-      const innerArea = Math.max(0, (rawW - 2*rawT) * (rawH - 2*rawT));
+      const innerArea = Math.max(0, rawW - 2 * rawT) * Math.max(0, rawH - 2 * rawT);
       currentWeight = ((outerArea - innerArea) * pieceL * density * qty) / 1000000;
     }
     else if (group.includes("PIPE") || group.includes("TUBE")) {
@@ -2487,22 +2541,42 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
         });
       }
 
+      // Stock picks used in new report rows are stocked out by the backend as part of this save
+      const usedSerials = new Set(
+        reportEntries.filter((e) => e.is_new).map((e) => e.full_data?.selectedSerial).filter(Boolean)
+      );
+      const stockIssueMap = new Map();
+      stockPicks
+        .filter((p) => usedSerials.has(p.serial_number))
+        .forEach((p) => {
+          if (!stockIssueMap.has(p.target_project)) stockIssueMap.set(p.target_project, []);
+          stockIssueMap.get(p.target_project).push(p.serial_number);
+        });
+      const stock_issues = [...stockIssueMap.entries()].map(([project_name, serial_numbers]) => ({ project_name, serial_numbers }));
+
       const response = await axios.post("/production/mcr/save", {
         plan_id: plan.id,
         work_date: mcrDate,
         pieces,
-        calculations
+        calculations,
+        stock_issues
       });
 
       if (response.data.success) {
-        toast.success("Full Material Cutting Report Finalized");
+        const stockCount = stock_issues.reduce((n, s) => n + s.serial_numbers.length, 0);
+        toast.success(
+          stockCount > 0
+            ? `MCR finalized. ${stockCount} piece(s) taken out of Inventory stock.`
+            : "Full Material Cutting Report Finalized"
+        );
+        setStockPicks([]);
         if (onRefresh) onRefresh();
         fetchMaterials();
         onClose();
       }
     } catch (error) {
       console.error("Error finalizing MCR:", error);
-      toast.error("Failed to save report");
+      toast.error(error.response?.data?.message || "Failed to save report");
     } finally {
       setLoading(false);
     }
@@ -2512,6 +2586,25 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
 
   return (
     <div className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+      <TakeFromStockModal
+        isOpen={isStockPickerOpen}
+        onClose={() => setIsStockPickerOpen(false)}
+        projectNames={(plan.project_names || "").split(",").map((n) => n.trim()).filter(Boolean)}
+        excludeSerials={stockPicks.map((p) => p.serial_number)}
+        onAdd={(picked, targetProject, rootCardId) => {
+          // Only added to this form; stock is reduced when the MCR is finalized
+          setStockPicks((prev) => [
+            ...prev,
+            ...picked.map((p) => ({ ...p, target_project: targetProject, root_card_id: rootCardId })),
+          ]);
+          const first = picked[0];
+          if (first) {
+            setSelectedItemCode(`${first.item_name}_${first.item_code}`);
+            setSelectedItem(null);
+          }
+          toast.info(`${picked.length} piece(s) added from stock. Stock is reduced only when this MCR is finalized.`);
+        }}
+      />
       <div className="bg-white dark:bg-slate-900 w-full max-w-5xl rounded shadow-2xl flex flex-col max-h-[98vh] overflow-hidden">
         {/* Header */}
         <div className="p-2 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-900">
@@ -2554,7 +2647,17 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                   {/* Row 1: Item Identification */}
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                     <div className="md:col-span-6 space-y-1.5">
-                      <label className="text-xs  text-slate-400    block">Item Name / Code *</label>
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs  text-slate-400    block">Item Name / Code *</label>
+                        <button
+                          type="button"
+                          onClick={() => setIsStockPickerOpen(true)}
+                          className="flex items-center gap-1 text-[11px] text-indigo-600 hover:text-indigo-800 font-medium"
+                          title="Issue QC-accepted pieces from Inventory stock to this project"
+                        >
+                          <Plus size={12} /> Take from Stock
+                        </button>
+                      </div>
                       <SearchableSelect
                         options={uniqueItemOptions}
                         value={selectedItemCode}
@@ -2564,6 +2667,33 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                         }}
                         placeholder="Search Materials..."
                       />
+                      {stockPicks.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1 pt-1">
+                          <span className="text-[10px] text-slate-400">From stock (not yet taken out):</span>
+                          {stockPicks.map((p) => {
+                            const inReport = reportEntries.some((e) => e.full_data?.selectedSerial === p.serial_number);
+                            return (
+                              <span
+                                key={p.serial_number}
+                                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-indigo-50 border border-indigo-100 text-[10px] text-indigo-700"
+                                title={`${p.item_name} for ${p.target_project}`}
+                              >
+                                {p.serial_number}
+                                {!inReport && (
+                                  <button
+                                    type="button"
+                                    onClick={() => setStockPicks((prev) => prev.filter((x) => x.serial_number !== p.serial_number))}
+                                    className="text-indigo-400 hover:text-red-500"
+                                    aria-label={`Remove ${p.serial_number}`}
+                                  >
+                                    <X size={10} />
+                                  </button>
+                                )}
+                              </span>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
 
                     <div className="md:col-span-3 space-y-1.5">
@@ -2907,6 +3037,7 @@ const MCRReportModal = ({ isOpen, onClose, plan, onRefresh }) => {
                               if (group.includes("SQUARE") || group.includes("RECT")) {
                                 rW = dims.w || 0;
                                 rH = dims.h || 0;
+                                if (group.includes("SQUARE") && !rH) rH = rW; // square tube: height = width
                                 rT = dims.t || 0;
                               } else {
                                 rOD = dims.od || dims.outer_diameter || rD || rW || 0;

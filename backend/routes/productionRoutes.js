@@ -1,10 +1,18 @@
 const express = require('express');
 const router = express.Router();
 const productionController = require('../controllers/productionController');
+const operatorController = require('../controllers/productionOperatorController');
+const mcrStockIssueController = require('../controllers/mcrStockIssueController');
 const auth = require('../middleware/authMiddleware');
 
 // Protect all production routes
 router.use(auth);
+
+// Operator management (Production + Admin only; operators = users with role 'employee')
+router.get('/operators', operatorController.requireOperatorManager, operatorController.getOperators);
+router.post('/operators', operatorController.requireOperatorManager, operatorController.createOperator);
+router.put('/operators/:id', operatorController.requireOperatorManager, operatorController.updateOperator);
+router.patch('/operators/:id/status', operatorController.requireOperatorManager, operatorController.updateOperatorStatus);
 
 // Root Card Routes for Production Planning
 router.get('/root-cards', productionController.getRootCards);
@@ -39,6 +47,9 @@ router.post('/send-fabrication-to-qc', productionController.sendFabricationToQC)
 
 // MCR Routes
 router.get('/mcr/materials', productionController.getReleasedMaterialsForMCR);
+// QC-accepted pieces in stock the MCR can use (must stay above '/mcr/:plan_id');
+// they are stocked out only when the MCR is saved (see saveMCR)
+router.get('/mcr/stock-pieces', mcrStockIssueController.getStockPiecesForMCR);
 router.get('/mcr/summary', productionController.getCombinedMCRSummary);
 router.get('/mcr/combined', productionController.getCombinedMCRReport);
 router.get('/mcr/:plan_id', productionController.getMCRDetails);

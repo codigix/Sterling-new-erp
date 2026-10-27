@@ -1623,7 +1623,8 @@ const releaseGRNMaterial = async (req, res) => {
             LEFT JOIN purchase_orders po ON g.purchase_order_id = po.id
             LEFT JOIN quotations q ON po.quotation_id = q.id
             LEFT JOIN material_requests mr ON q.material_request_id = mr.id
-            LEFT JOIN root_cards rc ON q.root_card_id = rc.id
+            -- PO's own project first (POs can be created without a quotation), then quotation / MR
+            LEFT JOIN root_cards rc ON rc.id = COALESCE(po.project_id, q.root_card_id, mr.root_card_id)
             WHERE g.id = ?
         `,
       [id],

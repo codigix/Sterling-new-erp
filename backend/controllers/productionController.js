@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { issuePiecesInTransaction, logStockIssueAudit } = require('./mcrStockIssueController');
 
 // Operations CRUD
 exports.getRootCards = async (req, res) => {
@@ -822,7 +823,7 @@ exports.getReleasedMaterialsForMCR = async (req, res) => {
       console.log(`Processing entry: ${entry.entry_no} (ID: ${entry.id}) for project: ${entry.project_name}`);
       // Join with bom_materials to get item_group
       const [items] = await db.query(`
-        SELECT sei.*, bm.item_group, bm.material_grade
+        SELECT sei.*, COALESCE(bm.item_group, sei.item_group) AS item_group, bm.material_grade
         FROM stock_entry_items sei
         LEFT JOIN boms b ON b.root_card_id = (SELECT id FROM root_cards WHERE project_name = ? LIMIT 1)
         LEFT JOIN bom_materials bm ON bm.bom_id = b.id AND bm.item_name = sei.item_name
@@ -861,7 +862,7 @@ exports.getReleasedMaterialsForMCR = async (req, res) => {
 };
 
 exports.saveMCR = async (req, res) => {
-  const { plan_id, work_date, pieces, calculations } = req.body;
+  const { plan_id, work_date, pieces, calculations, stock_issues } = req.body;
   const connection = await db.getConnection();
 
   try {
@@ -888,6 +889,26 @@ exports.saveMCR = async (req, res) => {
         [plan_id, formattedDate]
       );
       mcrId = mcrResult.insertId;
+    }
+
+    // Pieces picked with "Take from Stock" are stocked out only now, and only if they are actually
+    // used in this report (new cutting entries). Same transaction: any problem rolls back the MCR.
+    const stockIssueResults = [];
+    if (Array.isArray(stock_issues) && stock_issues.length > 0) {
+      const usedSerials = new Set(
+        (pieces || []).filter((p) => p.is_new).map((p) => String(p.serial_number || '').split(' (')[0])
+      );
+      for (const issue of stock_issues) {
+        const serialsToIssue = (issue.serial_numbers || []).filter((sn) => usedSerials.has(sn));
+        if (serialsToIssue.length > 0) {
+          stockIssueResults.push(await issuePiecesInTransaction(connection, {
+            projectName: issue.project_name,
+            serialNumbers: serialsToIssue,
+            userName: req.user?.fullName,
+            ip: req.ip
+          }));
+        }
+      }
     }
 
     for (const piece of pieces) {
@@ -1007,6 +1028,8 @@ exports.saveMCR = async (req, res) => {
               }
 
               // 5. Insert New Serial into inventory
+              // The off-cut comes from a piece that was released to production, and only QC-accepted
+              // pieces are released, so it inherits 'Accepted' (the cut parent keeps its "C" marker)
               await connection.query(
                 `INSERT INTO inventory_serials 
                 (serial_number, purchase_order_id, item_id, item_name, item_code, grn_id, status, location, 
@@ -1014,7 +1037,7 @@ exports.saveMCR = async (req, res) => {
                  web_thickness, flange_thickness, side1, side2, side_s, side_s1, side_s2,
                  unit_weight, total_weight, density, 
                  issued_in_entry_id, material_grade, inspection_status) 
-                VALUES (?, ?, ?, ?, ?, ?, 'Available', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'C')`,
+                VALUES (?, ?, ?, ?, ?, ?, 'Available', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Accepted')`,
                 [
                   newSerial, os.purchase_order_id, os.item_id, newItemName, os.item_code, os.grn_id,
                   os.location || 'Workshop', fL, fW, fT, 
@@ -1141,10 +1164,15 @@ exports.saveMCR = async (req, res) => {
     }
 
     await connection.commit();
+    stockIssueResults.forEach(logStockIssueAudit);
     res.json({ success: true, message: 'MCR saved successfully' });
   } catch (error) {
     if (connection) await connection.rollback();
     console.error('Error saving MCR:', error);
+    if (error.status) {
+      // Stock-issue validation (e.g. a picked piece was used elsewhere meanwhile)
+      return res.status(error.status).json({ success: false, message: error.message });
+    }
     res.status(500).json({ success: false, message: 'Server Error: ' + error.message });
   } finally {
     if (connection) connection.release();

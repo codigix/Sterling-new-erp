@@ -290,7 +290,9 @@ exports.getGRNInspections = async (req, res) => {
       LEFT JOIN vendors v ON g.vendor_id = v.id
       LEFT JOIN purchase_orders po ON g.purchase_order_id = po.id
       LEFT JOIN quotations q ON po.quotation_id = q.id
-      LEFT JOIN root_cards rc ON q.root_card_id = rc.id
+      LEFT JOIN material_requests mr ON q.material_request_id = mr.id
+      -- Project: the PO's own project first (POs can be created without a quotation), then quotation / MR
+      LEFT JOIN root_cards rc ON rc.id = COALESCE(po.project_id, q.root_card_id, mr.root_card_id)
       WHERE g.status IN ('qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved', 'partially_released', 'material_released')
       ORDER BY g.created_at DESC
     `);
@@ -325,10 +327,11 @@ exports.getQCReadyRootCards = async (req, res) => {
   try {
     const [rows] = await db.query(`
       SELECT DISTINCT rc.id, rc.project_name as projectName, rc.project_code as projectCode
-      FROM root_cards rc
-      JOIN quotations q ON q.root_card_id = rc.id
-      JOIN purchase_orders po ON po.quotation_id = q.id
-      JOIN grns g ON g.purchase_order_id = po.id
+      FROM grns g
+      JOIN purchase_orders po ON g.purchase_order_id = po.id
+      LEFT JOIN quotations q ON po.quotation_id = q.id
+      LEFT JOIN material_requests mr ON q.material_request_id = mr.id
+      JOIN root_cards rc ON rc.id = COALESCE(po.project_id, q.root_card_id, mr.root_card_id)
       WHERE g.status IN ('qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved', 'partially_released', 'material_released')
     `);
     res.json(rows);
@@ -359,7 +362,9 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
       JOIN grns g ON gi.grn_id = g.id
       JOIN purchase_orders po ON g.purchase_order_id = po.id
       JOIN vendors v ON g.vendor_id = v.id
-      JOIN quotations q ON po.quotation_id = q.id
+      -- LEFT joins: a PO raised without a quotation must still be inspectable
+      LEFT JOIN quotations q ON po.quotation_id = q.id
+      LEFT JOIN material_requests mr ON q.material_request_id = mr.id
       JOIN purchase_order_items poi ON gi.po_item_id = poi.id
       WHERE (g.status IN ('qc_pending', 'qc_finalized', 'qc_completed', 'awaiting_storage', 'completed', 'approved', 'partially_released', 'material_released'))
     `;
@@ -370,7 +375,7 @@ exports.getGRNMaterialsForInspection = async (req, res) => {
       const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [rootCardId, rootCardId]);
       const effectiveId = cards.length > 0 ? cards[0].id : rootCardId;
       
-      query += ` AND q.root_card_id = ?`;
+      query += ` AND COALESCE(po.project_id, q.root_card_id, mr.root_card_id) = ?`;
       queryParams.push(effectiveId);
     }
 
@@ -651,8 +656,9 @@ exports.getFinalQCReports = async (req, res) => {
                 FROM quality_final_reports qfr
                 JOIN grns g ON qfr.grn_id = g.id
                 JOIN purchase_orders po ON g.purchase_order_id = po.id
-                JOIN quotations q ON po.quotation_id = q.id
-                WHERE q.root_card_id = ?
+                LEFT JOIN quotations q ON po.quotation_id = q.id
+                LEFT JOIN material_requests mr ON q.material_request_id = mr.id
+                WHERE COALESCE(po.project_id, q.root_card_id, mr.root_card_id) = ?
             `;
             queryParams = [rootCardId];
         }
@@ -730,7 +736,8 @@ exports.sendToQC = async (req, res) => {
       FROM grns g
       LEFT JOIN purchase_orders po ON g.purchase_order_id = po.id
       LEFT JOIN quotations q ON po.quotation_id = q.id
-      LEFT JOIN root_cards rc ON q.root_card_id = rc.id
+      LEFT JOIN material_requests mr ON q.material_request_id = mr.id
+      LEFT JOIN root_cards rc ON rc.id = COALESCE(po.project_id, q.root_card_id, mr.root_card_id)
       WHERE g.id = ?
     `, [id]);
 

@@ -87,6 +87,8 @@ import ProductionUpdatePage from "./pages/production/ProductionUpdatePage";
 import QualityHandoverPage from "./pages/production/QualityHandoverPage";
 import DailyProductionUpdatesPage from "./pages/production/DailyProductionUpdatesPage";
 import EmployeeWorkLogsPage from "./pages/production/EmployeeWorkLogsPage";
+import OperatorsPage from "./pages/production/OperatorsPage";
+import AvailableStockPage from "./pages/production/AvailableStockPage";
 
 // Employee Portal removed
 
@@ -272,6 +274,11 @@ function App() {
                     <ReleasedMaterialsPage />
                   </ProtectedRoute>
                 } />
+                <Route path="production/available-stock" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <AvailableStockPage />
+                  </ProtectedRoute>
+                } />
                 
                 {/* BOM Routes */}
                 <Route path="production/bom/create" element={
@@ -313,6 +320,11 @@ function App() {
                 <Route path="production/employee-work-logs" element={
                   <ProtectedRoute allowedDepartments={["Production"]}>
                     <EmployeeWorkLogsPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="production/operators" element={
+                  <ProtectedRoute allowedDepartments={["Production"]}>
+                    <OperatorsPage />
                   </ProtectedRoute>
                 } />
                 <Route path="production/operations" element={
