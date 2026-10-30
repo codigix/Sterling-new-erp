@@ -38,8 +38,9 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
   const [fetchingMaterials, setFetchingMaterials] = useState(false);
   const [itemOptions, setItemOptions] = useState([]);
 
+  const currentYear = new Date().getFullYear();
   const [formData, setFormData] = useState({
-    challan_no: `STS/${Date.now().toString().slice(-6)}`,
+    challan_no: `STS/OC/${currentYear}/0001`,
     challan_date: new Date().toISOString().split('T')[0],
     vendor_id: "",
     vendor_name: "",
@@ -53,6 +54,18 @@ const CreateOutwardChallanModal = ({ isOpen, onClose, assignment, vendors }) => 
     remarks: "",
     items: []
   });
+
+  useEffect(() => {
+    if (isOpen) {
+      axios.get('/production/outward-challans/next-number')
+        .then(res => {
+          if (res.data?.success && res.data?.challan_no) {
+            setFormData(prev => ({ ...prev, challan_no: res.data.challan_no }));
+          }
+        })
+        .catch(err => console.error('Error fetching next challan number:', err));
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen && assignment) {

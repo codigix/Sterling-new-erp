@@ -158,12 +158,12 @@ exports.createDailyPlan = async (req, res) => {
           `INSERT INTO daily_operator_assignments 
           (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks, status) 
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [planId, effectiveRootCardId, a.operation_id, a.operation_name, 
-           a.assignment_type || 'inhouse',
-           a.operator_name, a.operator_id,
-           a.vendor_name, a.vendor_id,
-           a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.remarks || '',
-           a.status || 'Pending']
+          [planId, effectiveRootCardId, a.operation_id, a.operation_name,
+            a.assignment_type || 'inhouse',
+            a.operator_name, a.operator_id,
+            a.vendor_name, a.vendor_id,
+            a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.remarks || '',
+            a.status || 'Pending']
         );
 
         const newAssignmentId = assignResult.insertId;
@@ -176,8 +176,8 @@ exports.createDailyPlan = async (req, res) => {
            actual_start, actual_end, break_time, actual_hours, status, remarks) 
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [plan_date, planId, newAssignmentId, effectiveRootCardId, a.operation_id, a.operation_name,
-           a.operator_name, a.operator_id, a.vendor_name, a.vendor_id, a.assignment_type || 'inhouse',
-           a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.status || 'Pending', a.remarks || '']
+            a.operator_name, a.operator_id, a.vendor_name, a.vendor_id, a.assignment_type || 'inhouse',
+            a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.status || 'Pending', a.remarks || '']
         );
 
         // Sync with root_card_operations
@@ -255,12 +255,12 @@ exports.updateDailyPlan = async (req, res) => {
           `INSERT INTO daily_operator_assignments 
           (plan_id, root_card_id, operation_id, operation_name, assignment_type, operator_name, operator_id, vendor_name, vendor_id, start_time, end_time, break_time, total_hours, remarks, status) 
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [id, effectiveRootCardId, a.operation_id, a.operation_name, 
-           a.assignment_type || 'inhouse',
-           a.operator_name, a.operator_id,
-           a.vendor_name, a.vendor_id,
-           a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.remarks || '',
-           a.status || 'Pending']
+          [id, effectiveRootCardId, a.operation_id, a.operation_name,
+            a.assignment_type || 'inhouse',
+            a.operator_name, a.operator_id,
+            a.vendor_name, a.vendor_id,
+            a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.remarks || '',
+            a.status || 'Pending']
         );
 
         const newAssignmentId = assignResult.insertId;
@@ -279,8 +279,8 @@ exports.updateDailyPlan = async (req, res) => {
                  operator_name = ?, operator_id = ?, vendor_name = ?, vendor_id = ?, assignment_type = ?
              WHERE id = ?`,
             [newAssignmentId, a.status || 'Pending', a.remarks || '', plan_date, a.start_time, a.end_time, a.total_hours,
-             a.operator_name, a.operator_id, a.vendor_name, a.vendor_id, a.assignment_type || 'inhouse',
-             existingUpdate[0].id]
+              a.operator_name, a.operator_id, a.vendor_name, a.vendor_id, a.assignment_type || 'inhouse',
+              existingUpdate[0].id]
           );
         } else {
           await connection.query(
@@ -290,8 +290,8 @@ exports.updateDailyPlan = async (req, res) => {
              actual_start, actual_end, break_time, actual_hours, status, remarks) 
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [plan_date, id, newAssignmentId, effectiveRootCardId, a.operation_id, a.operation_name,
-             a.operator_name, a.operator_id, a.vendor_name, a.vendor_id, a.assignment_type || 'inhouse',
-             a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.status || 'Pending', a.remarks || '']
+              a.operator_name, a.operator_id, a.vendor_name, a.vendor_id, a.assignment_type || 'inhouse',
+              a.start_time, a.end_time, a.break_time || 0, a.total_hours, a.status || 'Pending', a.remarks || '']
           );
         }
 
@@ -351,18 +351,18 @@ exports.deleteDailyPlan = async (req, res) => {
     const affectedProjects = [...new Set(assignments.map(a => a.root_card_id).filter(Boolean))];
     for (const rcId of affectedProjects) {
       const projPhases = [...new Set(assignments.filter(a => a.root_card_id === rcId).map(a => a.phase).filter(Boolean))];
-      
+
       for (const phase of projPhases) {
         const [incompleteOps] = await connection.query(
           "SELECT COUNT(*) as count FROM root_card_operations WHERE root_card_id = ? AND phase = ? AND status != 'Completed'",
           [rcId, phase]
         );
-        
+
         if (incompleteOps[0].count > 0) {
           // Note: Never delete project_inspections here. Quality test reports and records must remain permanent.
           // Reset root card status only if it was in an unapproved QC pending status for this phase
-          const qcPendingStatus = phase === 1 
-            ? ['DIMENSIONAL_QC_PENDING', 'Production completed and send to Quality fot QC'] 
+          const qcPendingStatus = phase === 1
+            ? ['DIMENSIONAL_QC_PENDING', 'Production completed and send to Quality fot QC']
             : ['PHASE_2_QC_PENDING', 'final Prodcution completed and send to quality for final qc'];
           await connection.query(
             `UPDATE root_cards SET status = 'PRODUCTION_IN_PROGRESS', updated_at = CURRENT_TIMESTAMP 
@@ -417,8 +417,8 @@ exports.addAssignment = async (req, res) => {
        actual_start, actual_end, break_time, actual_hours, status, remarks) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [plan_date, plan_id, newAssignmentId, effectiveRootCardId, operation_id, operation_name,
-       operator_name, operator_id, vendor_name, vendor_id, assignment_type || 'inhouse',
-       start_time, end_time, break_time || 0, total_hours, status || 'Pending', remarks || '']
+        operator_name, operator_id, vendor_name, vendor_id, assignment_type || 'inhouse',
+        start_time, end_time, break_time || 0, total_hours, status || 'Pending', remarks || '']
     );
 
     // 4. Sync with root_card_operations
@@ -491,12 +491,12 @@ exports.deleteAssignment = async (req, res) => {
         "SELECT COUNT(*) as count FROM root_card_operations WHERE root_card_id = ? AND phase = ? AND status != 'Completed'",
         [root_card_id, phase]
       );
-      
+
       if (incompleteOps[0].count > 0) {
         // Note: Never delete project_inspections here. Quality test reports and records must remain permanent.
         // Reset root card status only if it was in an unapproved QC pending status for this phase
-        const qcPendingStatus = phase === 1 
-          ? ['DIMENSIONAL_QC_PENDING', 'Production completed and send to Quality fot QC'] 
+        const qcPendingStatus = phase === 1
+          ? ['DIMENSIONAL_QC_PENDING', 'Production completed and send to Quality fot QC']
           : ['PHASE_2_QC_PENDING', 'final Prodcution completed and send to quality for final qc'];
         await connection.query(
           `UPDATE root_cards SET status = 'PRODUCTION_IN_PROGRESS', updated_at = CURRENT_TIMESTAMP 
@@ -538,9 +538,9 @@ exports.updateAssignment = async (req, res) => {
            vendor_id = ?, vendor_name = ?, assignment_type = ?,
            start_time = ?, end_time = ?, break_time = ?, total_hours = ?, remarks = ?, status = ?
        WHERE id = ?`,
-      [effectiveRootCardId, operation_id, operation_name, operator_name, operator_id, 
-       vendor_id || null, vendor_name || null, assignment_type || 'inhouse',
-       start_time, end_time, break_time || 0, total_hours, remarks || '', status || 'Pending', id]
+      [effectiveRootCardId, operation_id, operation_name, operator_name, operator_id,
+        vendor_id || null, vendor_name || null, assignment_type || 'inhouse',
+        start_time, end_time, break_time || 0, total_hours, remarks || '', status || 'Pending', id]
     );
 
     // 2. Sync with daily_production_updates
@@ -569,8 +569,8 @@ exports.updateAssignment = async (req, res) => {
            actual_start, actual_end, break_time, actual_hours, status, remarks) 
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [plan_date || new Date(), plan_id, id, effectiveRootCardId, operation_id, operation_name,
-           operator_name, operator_id, vendor_name, vendor_id, assignment_type || 'inhouse',
-           start_time, end_time, break_time || 0, total_hours, status, remarks || '']
+            operator_name, operator_id, vendor_name, vendor_id, assignment_type || 'inhouse',
+            start_time, end_time, break_time || 0, total_hours, status, remarks || '']
         );
       }
 
@@ -612,7 +612,7 @@ exports.getProductionUpdates = async (req, res) => {
 
     const rootCardIds = [...new Set(rows.map(row => row.root_card_id?.toLowerCase()).filter(id => id))];
     console.log('ProductionUpdates - RootCardIds (Normalized):', rootCardIds);
-    
+
     if (rootCardIds.length > 0) {
       // Fetch all operations ever assigned or updated for these root cards
       const [allOps] = await db.query(`
@@ -760,8 +760,8 @@ exports.sendFabricationToQC = async (req, res) => {
     const projectName = rcs[0].project_name;
 
     // 2. Update Root Card status based on phase
-    const newStatus = currentPhase === 1 
-      ? 'Production completed and send to Quality fot QC' 
+    const newStatus = currentPhase === 1
+      ? 'Production completed and send to Quality fot QC'
       : 'final Prodcution completed and send to quality for final qc';
     await connection.query(
       "UPDATE root_cards SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
@@ -931,11 +931,11 @@ exports.saveMCR = async (req, res) => {
            web_thickness = ?, flange_thickness = ?, side1 = ?, side2 = ?, side_s = ?, side_s1 = ?, side_s2 = ?,
            unit_weight = ?, total_weight = ? WHERE serial_number = ?`,
           [
-            newStatus, 
-            piece.new_dims.l, piece.new_dims.w, piece.new_dims.t, 
+            newStatus,
+            piece.new_dims.l, piece.new_dims.w, piece.new_dims.t,
             piece.new_dims.diameter || null, piece.new_dims.outer_diameter || null, piece.new_dims.height || null,
-            piece.new_dims.web_thickness || null, piece.new_dims.flange_thickness || null, 
-            piece.new_dims.side1 || null, piece.new_dims.side2 || null, piece.new_dims.side_s || null, 
+            piece.new_dims.web_thickness || null, piece.new_dims.flange_thickness || null,
+            piece.new_dims.side1 || null, piece.new_dims.side2 || null, piece.new_dims.side_s || null,
             piece.new_dims.side_s1 || null, piece.new_dims.side_s2 || null,
             piece.new_weight, piece.new_weight, piece.serial_number
           ]
@@ -945,7 +945,7 @@ exports.saveMCR = async (req, res) => {
         if (piece.return_to_stock && piece.return_dims) {
           try {
             const { l, w, t } = piece.return_dims;
-            
+
             // 1. Generate New ST Number (Suffix original with -R and timestamp)
             const baseSerial = piece.serial_number.split(' (')[0];
             const timestamp = Date.now().toString().slice(-4);
@@ -961,7 +961,7 @@ exports.saveMCR = async (req, res) => {
               const os = originalSerial[0];
               const density = parseFloat(os.density) || 7.85;
               const group = (piece.item_group || "").toUpperCase();
-              
+
               // 3. Calculate Remnant Weight based on return dimensions
               let returnWeight = 0;
               const fL = parseFloat(l) || 0;
@@ -1042,9 +1042,9 @@ exports.saveMCR = async (req, res) => {
                 VALUES (?, ?, ?, ?, ?, ?, 'Available', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Accepted')`,
                 [
                   newSerial, os.purchase_order_id, os.item_id, newItemName, os.item_code, os.grn_id,
-                  os.location || 'Workshop', fL, fW, fT, 
-                  piece.return_dims.diameter || os.diameter, 
-                  piece.return_dims.outer_diameter || os.outer_diameter, 
+                  os.location || 'Workshop', fL, fW, fT,
+                  piece.return_dims.diameter || os.diameter,
+                  piece.return_dims.outer_diameter || os.outer_diameter,
                   piece.return_dims.height || os.height,
                   piece.return_dims.web_thickness || os.web_thickness,
                   piece.return_dims.flange_thickness || os.flange_thickness,
@@ -1079,7 +1079,7 @@ exports.saveMCR = async (req, res) => {
                   unit_weight, total_weight, density, project_name
                 ) VALUES (?, ?, ?, CURTIME(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [
-                  os.item_code, newItemName, formattedDate, 'MCR Return', mcrId, 
+                  os.item_code, newItemName, formattedDate, 'MCR Return', mcrId,
                   1, 'NOS', newBalance, `Off-cut return from ${piece.serial_number}`,
                   fL, fW, fT, returnWeight, returnWeight, density, projectName
                 ]
@@ -1108,7 +1108,7 @@ exports.saveMCR = async (req, res) => {
         [
           mcrId, piece.serial_number, piece.item_code, piece.item_name, piece.item_group, piece.material_grade, piece.design || 'Rectangular',
           piece.produced_qty, piece.cutting_axis || 'L',
-          piece.raw_dims.l, piece.raw_dims.w, piece.raw_dims.t, 
+          piece.raw_dims.l, piece.raw_dims.w, piece.raw_dims.t,
           piece.raw_dims.diameter || null, piece.raw_dims.outer_diameter || null, piece.raw_dims.height || null,
           piece.raw_dims.web_thickness || null, piece.raw_dims.flange_thickness || null, piece.raw_dims.side1 || null, piece.raw_dims.side2 || null, piece.raw_dims.side_s || null, piece.raw_dims.side_s1 || null, piece.raw_dims.side_s2 || null,
           piece.new_dims.l, piece.new_dims.w, piece.new_dims.t,
@@ -1210,14 +1210,14 @@ exports.getMCRDetails = async (req, res) => {
             raw_l: item.raw_l,
             raw_w: item.raw_w,
             raw_thk: item.raw_t,
-            raw_dims: { 
+            raw_dims: {
               l: item.raw_l, w: item.raw_w, t: item.raw_t,
               diameter: item.raw_diameter, outer_diameter: item.raw_outer_diameter, height: item.raw_height,
               web_thickness: item.raw_web_thickness, flange_thickness: item.raw_flange_thickness,
               side1: item.raw_side1, side2: item.raw_side2, side_s: item.raw_side_s,
               side_s1: item.raw_side_s1, side_s2: item.raw_side_s2
             },
-            new_dims: { 
+            new_dims: {
               l: item.new_l, w: item.new_w, t: item.new_t,
               diameter: item.new_diameter, outer_diameter: item.new_outer_diameter, height: item.new_height,
               web_thickness: item.new_web_thickness, flange_thickness: item.new_flange_thickness,
@@ -1438,31 +1438,31 @@ exports.getRootCardById = async (req, res) => {
 
     // Fetch operations with phase info
     const [operations] = await db.query('SELECT * FROM root_card_operations WHERE root_card_id = ? ORDER BY id DESC', [internalId]);
-    
+
     // Check if Phase 1 is fully completed and approved by Quality
     const phase1Ops = operations.filter(op => op.phase === 1);
-    
+
     // Phase 2 is unlocked ONLY if root card status is DIMENSIONAL_QC_APPROVED 
     // or if the project has already moved past this stage (e.g. status is 'Production' or similar)
-    const phase2Unlocked = rows[0].status === 'DIMENSIONAL_QC_APPROVED' || 
-                           rows[0].status === 'Production' || 
-                           rows[0].status === 'Partially Completed' ||
-                           rows[0].status === 'send to production for complete final produciton' ||
-                           rows[0].status === 'PHASE_2_QC_PENDING' ||
-                           rows[0].status === 'PHASE_2_QC_APPROVED' ||
-                           rows[0].status === 'final Prodcution completed and send to quality for final qc' ||
-                           rows[0].status === 'Redy for Dispatch';
+    const phase2Unlocked = rows[0].status === 'DIMENSIONAL_QC_APPROVED' ||
+      rows[0].status === 'Production' ||
+      rows[0].status === 'Partially Completed' ||
+      rows[0].status === 'send to production for complete final produciton' ||
+      rows[0].status === 'PHASE_2_QC_PENDING' ||
+      rows[0].status === 'PHASE_2_QC_APPROVED' ||
+      rows[0].status === 'final Prodcution completed and send to quality for final qc' ||
+      rows[0].status === 'Redy for Dispatch';
 
     const phase1Completed = (phase1Ops.length > 0 && phase1Ops.every(op => op.status === 'Completed')) || phase2Unlocked;
 
     const phase2Ops = operations.filter(op => op.phase === 2);
-    const phase2Completed = (phase2Ops.length > 0 && phase2Ops.every(op => op.status === 'Completed')) || 
-                            rows[0].status === 'PHASE_2_QC_APPROVED' || 
-                            rows[0].status === 'Redy for Dispatch';
+    const phase2Completed = (phase2Ops.length > 0 && phase2Ops.every(op => op.status === 'Completed')) ||
+      rows[0].status === 'PHASE_2_QC_APPROVED' ||
+      rows[0].status === 'Redy for Dispatch';
 
-    res.json({ 
-      success: true, 
-      rootCard: rows[0], 
+    res.json({
+      success: true,
+      rootCard: rows[0],
       stages: operations,
       phaseStatus: {
         phase1Completed,
@@ -1479,7 +1479,7 @@ exports.getRootCardById = async (req, res) => {
 exports.addProductionOperation = async (req, res) => {
   const { id } = req.params;
   const { stageName, stageType, plannedStart, plannedEnd, notes, phase } = req.body;
-  
+
   try {
     // Resolve internal ID if public_id is provided
     const [cards] = await db.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [id, id]);
@@ -1492,7 +1492,7 @@ exports.addProductionOperation = async (req, res) => {
       'INSERT INTO root_card_operations (root_card_id, operation_name, operation_type, phase, planned_start, planned_end, notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
       [internalId, stageName, stageType || 'in_house', phase || 1, plannedStart || null, plannedEnd || null, notes || '']
     );
-    
+
     res.json({ success: true, id: result.insertId, message: 'Operation added successfully' });
   } catch (error) {
     console.error('Error adding production operation:', error);
@@ -1554,10 +1554,10 @@ exports.deleteProductionOperation = async (req, res) => {
     // If ALL operations for the project or phase are deleted, reset pending QC status
     // Note: Never delete project_inspections here. Quality test reports and records must remain permanent.
     if (remainingOps[0].count === 0 || allRemainingOps[0].count === 0) {
-      const qcPendingStatus = phase === 1 
-        ? ['DIMENSIONAL_QC_PENDING', 'Production completed and send to Quality fot QC'] 
+      const qcPendingStatus = phase === 1
+        ? ['DIMENSIONAL_QC_PENDING', 'Production completed and send to Quality fot QC']
         : ['PHASE_2_QC_PENDING', 'final Prodcution completed and send to quality for final qc'];
-      
+
       await connection.query(
         `UPDATE root_cards SET status = 'PRODUCTION_IN_PROGRESS', updated_at = CURRENT_TIMESTAMP 
          WHERE id = ? AND status IN (?)`,
@@ -1577,305 +1577,374 @@ exports.deleteProductionOperation = async (req, res) => {
 };
 
 exports.createOutwardChallan = async (req, res) => {
-    const connection = await db.getConnection();
-    try {
-        await connection.beginTransaction();
-        const {
-            challan_no, challan_date, status, vendor_id, vendor_name, vendor_address,
-            operation_name, supply_order_no, supply_order_date,
-            despatched_through, against_lr_rr_no, freight_type,
-            remarks, assignment_id, plan_id, root_card_id, items
-        } = req.body;
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+    const {
+      challan_no, challan_date, status, vendor_id, vendor_name, vendor_address,
+      operation_name, supply_order_no, supply_order_date,
+      despatched_through, against_lr_rr_no, freight_type,
+      remarks, assignment_id, plan_id, root_card_id, items
+    } = req.body;
 
-        const [challanResult] = await connection.query(
-            `INSERT INTO outward_challans (
+    let finalChallanNo = challan_no;
+    const year = new Date().getFullYear();
+    const prefix = `STS/OC/${year}/`;
+    if (!finalChallanNo || (finalChallanNo.startsWith('STS/') && !finalChallanNo.startsWith(prefix))) {
+      const [rows] = await connection.query(
+        `SELECT challan_no FROM outward_challans WHERE challan_no LIKE ? ORDER BY challan_no DESC LIMIT 1 FOR UPDATE`,
+        [`${prefix}%`]
+      );
+      let nextSeq = 1;
+      if (rows.length > 0) {
+        const lastNo = rows[0].challan_no;
+        const parts = lastNo.split('/');
+        const lastSeq = parseInt(parts[parts.length - 1], 10);
+        if (!isNaN(lastSeq)) nextSeq = lastSeq + 1;
+      }
+      finalChallanNo = `${prefix}${String(nextSeq).padStart(4, '0')}`;
+    }
+
+    const [challanResult] = await connection.query(
+      `INSERT INTO outward_challans (
                 challan_no, challan_date, status, vendor_id, vendor_name, vendor_address,
                 operation_name, supply_order_no, supply_order_date,
                 despatched_through, against_lr_rr_no, freight_type,
                 remarks, assignment_id, plan_id, root_card_id
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-                challan_no, challan_date, status, vendor_id || null, vendor_name, vendor_address,
-                operation_name, supply_order_no || null, supply_order_date || null,
-                despatched_through || null, against_lr_rr_no || null, freight_type || null,
-                remarks, assignment_id, plan_id, root_card_id
-            ]
-        );
+      [
+        finalChallanNo, challan_date, status, vendor_id || null, vendor_name, vendor_address,
+        operation_name, supply_order_no || null, supply_order_date || null,
+        despatched_through || null, against_lr_rr_no || null, freight_type || null,
+        remarks, assignment_id, plan_id, root_card_id
+      ]
+    );
 
-        const challanId = challanResult.insertId;
+    const challanId = challanResult.insertId;
 
-        if (items && items.length > 0) {
-            const itemValues = items.map(item => [
-                challanId, item.item_code, item.item_name, item.batch_no,
-                item.available_qty, item.dispatch_qty, item.uom
-            ]);
+    if (items && items.length > 0) {
+      const itemValues = items.map(item => [
+        challanId, item.item_code, item.item_name, item.batch_no,
+        item.available_qty, item.dispatch_qty, item.uom
+      ]);
 
-            await connection.query(
-                `INSERT INTO outward_challan_items (
+      await connection.query(
+        `INSERT INTO outward_challan_items (
                     challan_id, item_code, item_name, batch_no, 
                     available_qty, dispatch_qty, uom
                 ) VALUES ?`,
-                [itemValues]
-            );
-        }
+        [itemValues]
+      );
+    }
 
-        if (assignment_id) {
-            // Resolve internal ID if public_id is provided
-            const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
-            const effectiveRootCardId = cards.length > 0 ? cards[0].id : root_card_id;
+    if (assignment_id) {
+      // Resolve internal ID if public_id is provided
+      const [cards] = await connection.query('SELECT id FROM root_cards WHERE id = ? OR public_id = ?', [root_card_id, root_card_id]);
+      const effectiveRootCardId = cards.length > 0 ? cards[0].id : root_card_id;
 
-            // 1. Update assignment status to 'Completed'
-            await connection.query(
-                `UPDATE daily_operator_assignments SET status = 'Completed' WHERE id = ?`,
-                [assignment_id]
-            );
+      // 1. Update assignment status to 'Completed'
+      await connection.query(
+        `UPDATE daily_operator_assignments SET status = 'Completed' WHERE id = ?`,
+        [assignment_id]
+      );
 
-            // 2. Sync with daily_production_updates
-            const [existingUpdates] = await connection.query(
-                'SELECT id FROM daily_production_updates WHERE assignment_id = ?',
-                [assignment_id]
-            );
+      // 2. Sync with daily_production_updates
+      const [existingUpdates] = await connection.query(
+        'SELECT id FROM daily_production_updates WHERE assignment_id = ?',
+        [assignment_id]
+      );
 
-            if (existingUpdates.length > 0) {
-                await connection.query(
-                    `UPDATE daily_production_updates 
+      if (existingUpdates.length > 0) {
+        await connection.query(
+          `UPDATE daily_production_updates 
                      SET status = 'Completed', root_card_id = ?
                      WHERE assignment_id = ?`,
-                    [effectiveRootCardId, assignment_id]
-                );
-            } else {
-                const [assignDetails] = await connection.query(
-                    'SELECT * FROM daily_operator_assignments WHERE id = ?',
-                    [assignment_id]
-                );
-                if (assignDetails.length > 0) {
-                    const a = assignDetails[0];
-                    await connection.query(
-                        `INSERT INTO daily_production_updates 
+          [effectiveRootCardId, assignment_id]
+        );
+      } else {
+        const [assignDetails] = await connection.query(
+          'SELECT * FROM daily_operator_assignments WHERE id = ?',
+          [assignment_id]
+        );
+        if (assignDetails.length > 0) {
+          const a = assignDetails[0];
+          await connection.query(
+            `INSERT INTO daily_production_updates 
                         (work_date, plan_id, assignment_id, root_card_id, operation_id, operation_name, 
                          operator_name, operator_id, vendor_name, vendor_id, assignment_type, 
                          actual_start, actual_end, break_time, actual_hours, status, remarks) 
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-                        [challan_date || new Date(), plan_id || a.plan_id, assignment_id, effectiveRootCardId, a.operation_id, a.operation_name,
-                         a.operator_name, a.operator_id, a.vendor_name, a.vendor_id, a.assignment_type || 'inhouse',
-                         a.start_time, a.end_time, a.break_time || 0, a.total_hours, 'Completed', a.remarks || '']
-                    );
-                }
-            }
+            [challan_date || new Date(), plan_id || a.plan_id, assignment_id, effectiveRootCardId, a.operation_id, a.operation_name,
+            a.operator_name, a.operator_id, a.vendor_name, a.vendor_id, a.assignment_type || 'inhouse',
+            a.start_time, a.end_time, a.break_time || 0, a.total_hours, 'Completed', a.remarks || '']
+          );
+        }
+      }
 
-            // 3. Sync with root_card_operations (Project Stages)
-            if (operation_name) {
-                await connection.query(
-                    `UPDATE root_card_operations 
+      // 3. Sync with root_card_operations (Project Stages)
+      if (operation_name) {
+        await connection.query(
+          `UPDATE root_card_operations 
                      SET status = 'Completed', updated_at = CURRENT_TIMESTAMP 
                      WHERE LOWER(TRIM(root_card_id)) = LOWER(TRIM(?)) AND LOWER(TRIM(operation_name)) = LOWER(TRIM(?))`,
-                    [effectiveRootCardId, operation_name]
-                );
-            }
-        }
-
-        await connection.commit();
-        res.json({ success: true, message: 'Outward challan created successfully', challanId });
-    } catch (error) {
-        await connection.rollback();
-        console.error('Error creating outward challan:', error);
-        res.status(500).json({ success: false, message: error.message });
-    } finally {
-        connection.release();
+          [effectiveRootCardId, operation_name]
+        );
+      }
     }
+
+    await connection.commit();
+    res.json({ success: true, message: 'Outward challan created successfully', challanId });
+  } catch (error) {
+    await connection.rollback();
+    console.error('Error creating outward challan:', error);
+    res.status(500).json({ success: false, message: error.message });
+  } finally {
+    connection.release();
+  }
+};
+
+exports.getNextChallanNumber = async (req, res) => {
+  try {
+    const year = new Date().getFullYear();
+    const prefix = `STS/OC/${year}/`;
+
+    // Find the highest sequential number for this year
+    const [rows] = await db.query(
+      `SELECT challan_no FROM outward_challans
+             WHERE challan_no LIKE ? ORDER BY challan_no DESC LIMIT 1`,
+      [`${prefix}%`]
+    );
+
+    let nextSeq = 1;
+    if (rows.length > 0) {
+      const lastNo = rows[0].challan_no; // e.g. STS/OC/2026/0007
+      const parts = lastNo.split('/');
+      const lastSeq = parseInt(parts[parts.length - 1], 10);
+      if (!isNaN(lastSeq)) {
+        nextSeq = lastSeq + 1;
+      }
+    }
+
+    const challanNo = `${prefix}${String(nextSeq).padStart(4, '0')}`;
+    res.json({ success: true, challan_no: challanNo });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 exports.getOutwardChallans = async (req, res) => {
-    try {
-        const query = `
+  try {
+    const query = `
             SELECT oc.*, rc.project_name, rc.id as project_ref
             FROM outward_challans oc
             LEFT JOIN root_cards rc ON oc.root_card_id = rc.id
             ORDER BY oc.created_at DESC
         `;
-        const [rows] = await db.query(query);
-        res.json({ success: true, challans: rows });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
+    const [rows] = await db.query(query);
+    res.json({ success: true, challans: rows });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 exports.getOutwardChallanDetails = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const query = `
+  const { id } = req.params;
+  try {
+    const query = `
             SELECT oc.*, rc.project_name, rc.id as project_ref
             FROM outward_challans oc
             LEFT JOIN root_cards rc ON oc.root_card_id = rc.id
             WHERE oc.id = ?
         `;
-        const [challan] = await db.query(query, [id]);
-        
-        if (challan.length === 0) {
-            return res.status(404).json({ success: false, message: 'Challan not found' });
-        }
+    const [challan] = await db.query(query, [id]);
 
-        const [items] = await db.query('SELECT * FROM outward_challan_items WHERE challan_id = ?', [id]);
-        
-        res.json({ success: true, challan: challan[0], items });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+    if (challan.length === 0) {
+      return res.status(404).json({ success: false, message: 'Challan not found' });
     }
+
+    const [items] = await db.query('SELECT * FROM outward_challan_items WHERE challan_id = ?', [id]);
+
+    res.json({ success: true, challan: challan[0], items });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 exports.deleteOutwardChallan = async (req, res) => {
-    const { id } = req.params;
-    const connection = await db.getConnection();
-    try {
-        await connection.beginTransaction();
+  const { id } = req.params;
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
 
-        // 1. Check if there are any associated inward challans
-        const [inwardRows] = await connection.query(
-            'SELECT id FROM inward_challans WHERE outward_challan_id = ?',
-            [id]
-        );
-        if (inwardRows.length > 0) {
-            await connection.rollback();
-            return res.status(400).json({
-                success: false,
-                message: 'Cannot delete outward challan as it has associated inward challan(s).'
-            });
-        }
-
-        // 2. Check if there are any associated vendor invoices
-        const [invoiceRows] = await connection.query(
-            'SELECT id FROM vendor_invoices WHERE outward_challan_id = ?',
-            [id]
-        );
-        if (invoiceRows.length > 0) {
-            await connection.rollback();
-            return res.status(400).json({
-                success: false,
-                message: 'Cannot delete outward challan as it has associated vendor invoice(s).'
-            });
-        }
-
-        // 3. Delete the outward challan (this will cascade delete outward_challan_items)
-        const [result] = await connection.query(
-            'DELETE FROM outward_challans WHERE id = ?',
-            [id]
-        );
-
-        if (result.affectedRows === 0) {
-            await connection.rollback();
-            return res.status(404).json({
-                success: false,
-                message: 'Challan not found'
-            });
-        }
-
-        await connection.commit();
-        res.json({ success: true, message: 'Outward challan deleted successfully' });
-    } catch (error) {
-        if (connection) await connection.rollback();
-        console.error('Error deleting outward challan:', error);
-        res.status(500).json({ success: false, message: error.message });
-    } finally {
-        if (connection) connection.release();
+    // 1. Check if there are any associated inward challans
+    const [inwardRows] = await connection.query(
+      'SELECT id FROM inward_challans WHERE outward_challan_id = ?',
+      [id]
+    );
+    if (inwardRows.length > 0) {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot delete outward challan as it has associated inward challan(s).'
+      });
     }
+
+    // 2. Check if there are any associated vendor invoices
+    const [invoiceRows] = await connection.query(
+      'SELECT id FROM vendor_invoices WHERE outward_challan_id = ?',
+      [id]
+    );
+    if (invoiceRows.length > 0) {
+      await connection.rollback();
+      return res.status(400).json({
+        success: false,
+        message: 'Cannot delete outward challan as it has associated vendor invoice(s).'
+      });
+    }
+
+    // 3. Delete the outward challan (this will cascade delete outward_challan_items)
+    const [result] = await connection.query(
+      'DELETE FROM outward_challans WHERE id = ?',
+      [id]
+    );
+
+    if (result.affectedRows === 0) {
+      await connection.rollback();
+      return res.status(404).json({
+        success: false,
+        message: 'Challan not found'
+      });
+    }
+
+    await connection.commit();
+    res.json({ success: true, message: 'Outward challan deleted successfully' });
+  } catch (error) {
+    if (connection) await connection.rollback();
+    console.error('Error deleting outward challan:', error);
+    res.status(500).json({ success: false, message: error.message });
+  } finally {
+    if (connection) connection.release();
+  }
 };
 
 exports.createInwardChallan = async (req, res) => {
-    const connection = await db.getConnection();
-    try {
-        await connection.beginTransaction();
-        const {
-            challan_no, challan_date, status, outward_challan_id, vendor_id, vendor_name, vendor_address,
-            received_date, vehicle_no, remarks, root_card_id, items
-        } = req.body;
+  const connection = await db.getConnection();
+  try {
+    await connection.beginTransaction();
+    const {
+      challan_no, challan_date, status, outward_challan_id, vendor_id, vendor_name, vendor_address,
+      received_date, vehicle_no, remarks, root_card_id, items
+    } = req.body;
 
-        const [challanResult] = await connection.query(
-            `INSERT INTO inward_challans (
+    const [challanResult] = await connection.query(
+      `INSERT INTO inward_challans (
                 challan_no, challan_date, status, outward_challan_id, vendor_id, vendor_name, vendor_address,
                 received_date, vehicle_no, remarks, root_card_id
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-                challan_no, challan_date, status, outward_challan_id, vendor_id || null, vendor_name, vendor_address,
-                received_date, vehicle_no || null, remarks, root_card_id
-            ]
-        );
+      [
+        challan_no, challan_date, status, outward_challan_id, vendor_id || null, vendor_name, vendor_address,
+        received_date, vehicle_no || null, remarks, root_card_id
+      ]
+    );
 
-        const challanId = challanResult.insertId;
+    const challanId = challanResult.insertId;
 
-        if (items && items.length > 0) {
-            const itemValues = items.map(item => [
-                challanId, item.item_code, item.item_name, item.batch_no,
-                item.sent_qty, item.received_qty, item.accepted_qty, item.rejected_qty,
-                item.uom, item.remarks
-            ]);
+    if (items && items.length > 0) {
+      const itemValues = items.map(item => [
+        challanId, item.item_code, item.item_name, item.batch_no,
+        item.sent_qty, item.received_qty, item.accepted_qty, item.rejected_qty,
+        item.uom, item.remarks
+      ]);
 
-            await connection.query(
-                `INSERT INTO inward_challan_items (
+      await connection.query(
+        `INSERT INTO inward_challan_items (
                     inward_challan_id, item_code, item_name, batch_no, 
                     sent_qty, received_qty, accepted_qty, rejected_qty,
                     uom, remarks
                 ) VALUES ?`,
-                [itemValues]
-            );
-        }
-
-        // Optional: Update outward challan status to RECEIVED if all items are received
-        if (outward_challan_id) {
-            await connection.query(
-                "UPDATE outward_challans SET status = 'RECEIVED' WHERE id = ?",
-                [outward_challan_id]
-            );
-        }
-
-        await connection.commit();
-        res.json({ success: true, message: 'Inward challan created successfully', challanId });
-    } catch (error) {
-        await connection.rollback();
-        console.error('Error creating inward challan:', error);
-        res.status(500).json({ success: false, message: error.message });
-    } finally {
-        connection.release();
+        [itemValues]
+      );
     }
+
+    // Optional: Update outward challan status to RECEIVED if all items are received
+    if (outward_challan_id) {
+      await connection.query(
+        "UPDATE outward_challans SET status = 'RECEIVED' WHERE id = ?",
+        [outward_challan_id]
+      );
+    }
+
+    await connection.commit();
+    res.json({ success: true, message: 'Inward challan created successfully', challanId });
+  } catch (error) {
+    await connection.rollback();
+    console.error('Error creating inward challan:', error);
+    res.status(500).json({ success: false, message: error.message });
+  } finally {
+    connection.release();
+  }
+};
+
+exports.getNextInwardChallanNumber = async (req, res) => {
+  try {
+    const year = new Date().getFullYear();
+    const prefix = `STS/IC/${year}/`;
+    const [rows] = await db.query(
+      `SELECT challan_no FROM inward_challans WHERE challan_no LIKE ? ORDER BY challan_no DESC LIMIT 1`,
+      [`${prefix}%`]
+    );
+    let nextSeq = 1;
+    if (rows.length > 0) {
+      const lastNo = rows[0].challan_no;
+      const parts = lastNo.split('/');
+      const lastSeq = parseInt(parts[parts.length - 1], 10);
+      if (!isNaN(lastSeq)) nextSeq = lastSeq + 1;
+    }
+    const challanNo = `${prefix}${String(nextSeq).padStart(4, '0')}`;
+    res.json({ success: true, challan_no: challanNo });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 exports.getInwardChallans = async (req, res) => {
-    try {
-        const query = `
+  try {
+    const query = `
             SELECT ic.*, rc.project_name, rc.id as project_ref, oc.challan_no as outward_challan_no
             FROM inward_challans ic
             LEFT JOIN root_cards rc ON ic.root_card_id = rc.id
             LEFT JOIN outward_challans oc ON ic.outward_challan_id = oc.id
             ORDER BY ic.created_at DESC
         `;
-        const [rows] = await db.query(query);
-        res.json({ success: true, challans: rows });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
-    }
+    const [rows] = await db.query(query);
+    res.json({ success: true, challans: rows });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 exports.getInwardChallanDetails = async (req, res) => {
-    const { id } = req.params;
-    try {
-        const query = `
+  const { id } = req.params;
+  try {
+    const query = `
             SELECT ic.*, rc.project_name, rc.id as project_ref, oc.challan_no as outward_challan_no
             FROM inward_challans ic
             LEFT JOIN root_cards rc ON ic.root_card_id = rc.id
             LEFT JOIN outward_challans oc ON ic.outward_challan_id = oc.id
             WHERE ic.id = ?
         `;
-        const [challan] = await db.query(query, [id]);
-        
-        if (challan.length === 0) {
-            return res.status(404).json({ success: false, message: 'Challan not found' });
-        }
+    const [challan] = await db.query(query, [id]);
 
-        const [items] = await db.query('SELECT * FROM inward_challan_items WHERE inward_challan_id = ?', [id]);
-        
-        res.json({ success: true, challan: challan[0], items });
-    } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+    if (challan.length === 0) {
+      return res.status(404).json({ success: false, message: 'Challan not found' });
     }
+
+    const [items] = await db.query('SELECT * FROM inward_challan_items WHERE inward_challan_id = ?', [id]);
+
+    res.json({ success: true, challan: challan[0], items });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
 };
 
 exports.getRootCardPertDetails = async (req, res) => {
@@ -1933,127 +2002,127 @@ exports.getRootCardPertDetails = async (req, res) => {
       // 1. BOM Creation
       const hasBom = projectBoms.length > 0;
       const isPastBom = !['BOM_PREPARATION'].includes(rc.status);
-      const step1 = { 
-        progress: (hasBom || isPastBom) ? 100 : 0, 
-        details: hasBom ? `BOM Created: ${projectBoms.map(b => b.bom_number).join(', ')}` : "BOM Pending" 
+      const step1 = {
+        progress: (hasBom || isPastBom) ? 100 : 0,
+        details: hasBom ? `BOM Created: ${projectBoms.map(b => b.bom_number).join(', ')}` : "BOM Pending"
       };
 
       // 2. Material Request
       const hasMr = projectMrs.length > 0;
       const isPastMr = !['BOM_PREPARATION', 'MATERIAL_PLANNING'].includes(rc.status);
-      const step2 = { 
-        progress: (hasMr || isPastMr) ? 100 : 0, 
-        details: hasMr ? `Material Request Sent: ${projectMrs.map(m => m.request_number).join(', ')}` : "Material Request Pending" 
+      const step2 = {
+        progress: (hasMr || isPastMr) ? 100 : 0,
+        details: hasMr ? `Material Request Sent: ${projectMrs.map(m => m.request_number).join(', ')}` : "Material Request Pending"
       };
 
       // 3. Material Release
       const hasRelease = projectGrns.some(g => ['material_released', 'partially_released', 'completed'].includes(g.status));
       const isPastRelease = ![
-        'BOM_PREPARATION', 'MATERIAL_PLANNING', 'PURCHASE_ORDER_RELEASED', 
+        'BOM_PREPARATION', 'MATERIAL_PLANNING', 'PURCHASE_ORDER_RELEASED',
         'PARTIALLY_RELEASED', 'MATERIAL_RELEASED'
       ].includes(rc.status);
-      const step3 = { 
-        progress: (hasRelease || isPastRelease) ? 100 : 0, 
-        details: hasRelease 
-          ? `Materials Released: ${projectGrns.filter(g => ['material_released', 'partially_released', 'completed'].includes(g.status)).map(g => g.grn_number).join(', ')}` 
-          : "Material Release Pending" 
+      const step3 = {
+        progress: (hasRelease || isPastRelease) ? 100 : 0,
+        details: hasRelease
+          ? `Materials Released: ${projectGrns.filter(g => ['material_released', 'partially_released', 'completed'].includes(g.status)).map(g => g.grn_number).join(', ')}`
+          : "Material Release Pending"
       };
 
       // 4. Operation Selection
       const hasOps = projectOps.length > 0;
-      const step4 = { 
-        progress: hasOps ? 100 : 0, 
-        details: hasOps ? `${projectOps.length} Operations Selected` : "Operations Not Selected" 
+      const step4 = {
+        progress: hasOps ? 100 : 0,
+        details: hasOps ? `${projectOps.length} Operations Selected` : "Operations Not Selected"
       };
 
       // 5. Phase 1 Execution
       const phase1Ops = projectOps.filter(o => o.phase === 1);
       const phase1CompletedOps = phase1Ops.filter(o => o.status === 'Completed');
       const phase2Unlocked = [
-        'DIMENSIONAL_QC_APPROVED', 'Production', 'Partially Completed', 
-        'send to production for complete final produciton', 'PHASE_2_QC_PENDING', 
-        'PHASE_2_QC_APPROVED', 'final Prodcution completed and send to quality for final qc', 
+        'DIMENSIONAL_QC_APPROVED', 'Production', 'Partially Completed',
+        'send to production for complete final produciton', 'PHASE_2_QC_PENDING',
+        'PHASE_2_QC_APPROVED', 'final Prodcution completed and send to quality for final qc',
         'Redy for Dispatch', 'READY_FOR_DELIVERY', 'READY_FOR_DISPATCH', 'DISPATCHED', 'DELIVERED'
       ].includes(rc.status);
-      
+
       const phase1Progress = phase2Unlocked ? 100 : (phase1Ops.length > 0 ? Math.round((phase1CompletedOps.length / phase1Ops.length) * 100) : 0);
-      const step5 = { 
-        progress: phase1Progress, 
-        details: phase1Ops.length > 0 
-          ? `Phase 1 Operations: ${phase1CompletedOps.length}/${phase1Ops.length} Completed` 
-          : "No Phase 1 Operations Defined" 
+      const step5 = {
+        progress: phase1Progress,
+        details: phase1Ops.length > 0
+          ? `Phase 1 Operations: ${phase1CompletedOps.length}/${phase1Ops.length} Completed`
+          : "No Phase 1 Operations Defined"
       };
 
       // 6. Quality Handover (Phase 1)
       const isP1SentToQc = [
-        'Production completed and send to Quality fot QC', 'DIMENSIONAL_QC_PENDING', 
-        'DIMENSIONAL_QC_APPROVED', 'send to production for complete final produciton', 
-        'PAINTING_IN_PROGRESS', 'final Prodcution completed and send to quality for final qc', 
-        'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'Redy for Dispatch', 'READY_FOR_DELIVERY', 
+        'Production completed and send to Quality fot QC', 'DIMENSIONAL_QC_PENDING',
+        'DIMENSIONAL_QC_APPROVED', 'send to production for complete final produciton',
+        'PAINTING_IN_PROGRESS', 'final Prodcution completed and send to quality for final qc',
+        'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'Redy for Dispatch', 'READY_FOR_DELIVERY',
         'READY_FOR_DISPATCH', 'DISPATCHED', 'DELIVERED'
       ].includes(rc.status);
-      const step6 = { 
-        progress: isP1SentToQc ? 100 : 0, 
-        details: isP1SentToQc ? "Phase 1 Fabrication Sent to Quality" : "Pending Phase 1 Handover" 
+      const step6 = {
+        progress: isP1SentToQc ? 100 : 0,
+        details: isP1SentToQc ? "Phase 1 Fabrication Sent to Quality" : "Pending Phase 1 Handover"
       };
 
       // 7. Quality Report (Phase 1)
       const isP1QcApproved = [
-        'DIMENSIONAL_QC_APPROVED', 'send to production for complete final produciton', 
-        'PAINTING_IN_PROGRESS', 'final Prodcution completed and send to quality for final qc', 
-        'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'Redy for Dispatch', 'READY_FOR_DELIVERY', 
+        'DIMENSIONAL_QC_APPROVED', 'send to production for complete final produciton',
+        'PAINTING_IN_PROGRESS', 'final Prodcution completed and send to quality for final qc',
+        'PHASE_2_QC_PENDING', 'PHASE_2_QC_APPROVED', 'Redy for Dispatch', 'READY_FOR_DELIVERY',
         'READY_FOR_DISPATCH', 'DISPATCHED', 'DELIVERED'
       ].includes(rc.status);
-      const step7 = { 
-        progress: isP1QcApproved ? 100 : 0, 
-        details: isP1QcApproved ? "Phase 1 QC Approved" : "Pending Quality Report/Approval" 
+      const step7 = {
+        progress: isP1QcApproved ? 100 : 0,
+        details: isP1QcApproved ? "Phase 1 QC Approved" : "Pending Quality Report/Approval"
       };
 
       // 8. Phase 2 Execution
       const phase2Ops = projectOps.filter(o => o.phase === 2);
       const phase2CompletedOps = phase2Ops.filter(o => o.status === 'Completed');
       const finalQCUnlocked = [
-        'PHASE_2_QC_APPROVED', 'Redy for Dispatch', 'READY_FOR_DELIVERY', 
+        'PHASE_2_QC_APPROVED', 'Redy for Dispatch', 'READY_FOR_DELIVERY',
         'READY_FOR_DISPATCH', 'DISPATCHED', 'DELIVERED'
       ].includes(rc.status);
 
       const phase2Progress = finalQCUnlocked ? 100 : (phase2Ops.length > 0 ? Math.round((phase2CompletedOps.length / phase2Ops.length) * 100) : 0);
-      const step8 = { 
-        progress: phase2Progress, 
-        details: phase2Ops.length > 0 
-          ? `Phase 2 Operations: ${phase2CompletedOps.length}/${phase2Ops.length} Completed` 
-          : "No Phase 2 Operations Defined" 
+      const step8 = {
+        progress: phase2Progress,
+        details: phase2Ops.length > 0
+          ? `Phase 2 Operations: ${phase2CompletedOps.length}/${phase2Ops.length} Completed`
+          : "No Phase 2 Operations Defined"
       };
 
       // 9. Quality Handover (Phase 2)
       const isP2SentToQc = [
-        'final Prodcution completed and send to quality for final qc', 'PHASE_2_QC_PENDING', 
-        'PHASE_2_QC_APPROVED', 'Redy for Dispatch', 'READY_FOR_DELIVERY', 
+        'final Prodcution completed and send to quality for final qc', 'PHASE_2_QC_PENDING',
+        'PHASE_2_QC_APPROVED', 'Redy for Dispatch', 'READY_FOR_DELIVERY',
         'READY_FOR_DISPATCH', 'DISPATCHED', 'DELIVERED'
       ].includes(rc.status);
-      const step9 = { 
-        progress: isP2SentToQc ? 100 : 0, 
-        details: isP2SentToQc ? "Phase 2 Painting & Finishing Sent to Quality" : "Pending Phase 2 Handover" 
+      const step9 = {
+        progress: isP2SentToQc ? 100 : 0,
+        details: isP2SentToQc ? "Phase 2 Painting & Finishing Sent to Quality" : "Pending Phase 2 Handover"
       };
 
       // 10. Quality Report (Phase 2)
       const isP2QcApproved = [
-        'PHASE_2_QC_APPROVED', 'Redy for Dispatch', 'READY_FOR_DELIVERY', 
+        'PHASE_2_QC_APPROVED', 'Redy for Dispatch', 'READY_FOR_DELIVERY',
         'READY_FOR_DISPATCH', 'DISPATCHED', 'DELIVERED'
       ].includes(rc.status);
-      const step10 = { 
-        progress: isP2QcApproved ? 100 : 0, 
-        details: isP2QcApproved ? "Phase 2 QC Approved" : "Pending Quality Report/Approval" 
+      const step10 = {
+        progress: isP2QcApproved ? 100 : 0,
+        details: isP2QcApproved ? "Phase 2 QC Approved" : "Pending Quality Report/Approval"
       };
 
       // 11. Ready for Shipment
       const isReadyForShipment = [
-        'Redy for Dispatch', 'READY_FOR_DELIVERY', 'READY_FOR_DISPATCH', 
+        'Redy for Dispatch', 'READY_FOR_DELIVERY', 'READY_FOR_DISPATCH',
         'DISPATCHED', 'DELIVERED'
       ].includes(rc.status);
-      const step11 = { 
-        progress: isReadyForShipment ? 100 : 0, 
-        details: isReadyForShipment ? "Project is Ready for Shipment / Dispatched" : "Pending Final Release" 
+      const step11 = {
+        progress: isReadyForShipment ? 100 : 0,
+        details: isReadyForShipment ? "Project is Ready for Shipment / Dispatched" : "Pending Final Release"
       };
 
       const steps = [step1, step2, step3, step4, step5, step6, step7, step8, step9, step10, step11];
@@ -2139,7 +2208,7 @@ exports.getRootCardProcurementPertDetails = async (req, res) => {
     const rcIds = rootCards.map(rc => rc.id);
 
     const [mrs] = await db.query('SELECT id, root_card_id, request_number, status, created_at FROM material_requests WHERE root_card_id IN (?)', [rcIds]);
-    
+
     const [quotes] = await db.query(`
       SELECT q.id, q.root_card_id, q.material_request_id, q.quotation_number, q.type, q.status, q.created_at, v.name as vendor_name, q.total_amount
       FROM quotations q
@@ -2167,10 +2236,10 @@ exports.getRootCardProcurementPertDetails = async (req, res) => {
 
     const projectsDetails = rootCards.map(rc => {
       const projectMrs = mrs.filter(m => m.root_card_id === rc.id);
-      
+
       const projectMrIds = projectMrs.map(m => m.id);
       const projectQuotes = quotes.filter(q => q.root_card_id === rc.id || (q.material_request_id && projectMrIds.includes(q.material_request_id)));
-      
+
       const projectRFQs = projectQuotes.filter(q => q.type === 'outbound');
       const projectInboundQuotes = projectQuotes.filter(q => q.type === 'inbound');
 
@@ -2205,8 +2274,8 @@ exports.getRootCardProcurementPertDetails = async (req, res) => {
       const hasInbound = projectInboundQuotes.length > 0;
       const step5 = {
         progress: hasInbound ? 100 : 0,
-        details: hasInbound 
-          ? `Received: ${projectInboundQuotes.map(q => `${q.quotation_number} (${q.vendor_name || 'Vendor'})`).join(', ')}` 
+        details: hasInbound
+          ? `Received: ${projectInboundQuotes.map(q => `${q.quotation_number} (${q.vendor_name || 'Vendor'})`).join(', ')}`
           : "Awaiting Vendor Quotation Response"
       };
 

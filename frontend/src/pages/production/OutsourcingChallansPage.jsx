@@ -149,49 +149,94 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
     {
       key: "status",
       label: "Status",
-      render: (val, row) => (
-        <span className={`text-[10px]  px-2 py-1 rounded-full border ${
-          val === "SUBMITTED" ? "bg-blue-50 text-blue-600 border-blue-100" : 
-          val === "DRAFT" ? "bg-slate-50 text-slate-600 border-slate-100" :
-          "bg-emerald-50 text-emerald-600 border-emerald-100"
-        }`}>{val}</span>
-      )
+      render: (val, row) => {
+        const hasInward = inwardChallans.some(ic => ic.outward_challan_id === row.id);
+        return (
+          <div className="flex flex-col gap-1">
+            <span className={`text-[10px] px-2 py-1 rounded-full border w-fit ${
+              val === "SUBMITTED" ? "bg-blue-50 text-blue-600 border-blue-100" : 
+              val === "DRAFT" ? "bg-slate-50 text-slate-600 border-slate-100" :
+              "bg-emerald-50 text-emerald-600 border-emerald-100"
+            }`}>{val}</span>
+            {hasInward && (
+              <span className="text-[9px] px-1.5 py-0.5 bg-teal-50 text-teal-600 border border-teal-100 rounded-full w-fit flex items-center gap-0.5">
+                <ArrowDownLeft size={8} /> Inward Done
+              </span>
+            )}
+          </div>
+        );
+      }
     },
     {
       key: "actions",
       label: "Actions",
       align: "right",
-      render: (val, row) => (
-        <div className="flex items-center justify-end gap-1">
-          <button 
-            onClick={() => {
-              setSelectedChallanId(row.id);
-              setIsViewModalOpen(true);
-            }}
-            className="p-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors" 
-            title="View Details"
-          >
-            <Eye size={16} />
-          </button>
-          <button 
-            onClick={() => handleDownload(row)}
-            disabled={downloading}
-            className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg transition-colors disabled:opacity-50" 
-            title="Download PDF"
-          >
-            {downloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
-          </button>
-          {!isAccountantView && (
+      render: (val, row) => {
+        const hasInward = inwardChallans.some(ic => ic.outward_challan_id === row.id);
+        return (
+          <div className="flex items-center justify-end gap-1">
             <button 
-              onClick={() => handleDelete(row.id)}
-              className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" 
-              title="Delete"
+              onClick={() => {
+                setSelectedChallanId(row.id);
+                setIsViewModalOpen(true);
+              }}
+              className="p-2 text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-lg transition-colors" 
+              title="View Outward Challan"
             >
-              <Trash2 size={16} />
+              <Eye size={16} />
             </button>
-          )}
-        </div>
-      )
+            <button 
+              onClick={() => handleDownload(row)}
+              disabled={downloading}
+              className="p-2 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/30 rounded-lg transition-colors disabled:opacity-50" 
+              title="Download PDF"
+            >
+              {downloading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
+            </button>
+
+            {/* Create Inward Challan button — only for submitted outward challans without an inward yet */}
+            {!isAccountantView && !hasInward && row.status === "SUBMITTED" && (
+              <button 
+                onClick={() => {
+                  setSelectedOutwardChallan(row);
+                  setIsCreateInwardModalOpen(true);
+                }}
+                className="p-2 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30 rounded-lg transition-colors" 
+                title="Create Inward Challan"
+              >
+                <ArrowDownLeft size={16} />
+              </button>
+            )}
+
+            {/* View linked inward challan */}
+            {hasInward && (
+              <button 
+                onClick={() => {
+                  const linked = inwardChallans.find(ic => ic.outward_challan_id === row.id);
+                  if (linked) {
+                    setSelectedChallanId(linked.id);
+                    setIsInwardViewModalOpen(true);
+                  }
+                }}
+                className="p-2 text-teal-600 hover:bg-teal-50 dark:hover:bg-teal-900/30 rounded-lg transition-colors" 
+                title="View Inward Challan"
+              >
+                <Truck size={16} />
+              </button>
+            )}
+
+            {!isAccountantView && (
+              <button 
+                onClick={() => handleDelete(row.id)}
+                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors" 
+                title="Delete"
+              >
+                <Trash2 size={16} />
+              </button>
+            )}
+          </div>
+        );
+      }
     }
   ];
 
@@ -260,9 +305,12 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
     }
   ];
 
-  const filteredChallans = (activeTab === "outward" ? outwardChallans : inwardChallans).filter(challan => {
-    return selectedProject === "all" || challan.root_card_id === selectedProject;
-  });
+  const filteredOutward = outwardChallans.filter(c =>
+    selectedProject === "all" || c.root_card_id === selectedProject
+  );
+  const filteredInward = inwardChallans.filter(c =>
+    selectedProject === "all" || c.root_card_id === selectedProject
+  );
 
   return (
     <div className="p-6 bg-slate-50 dark:bg-slate-950 min-h-screen">
@@ -308,17 +356,59 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
         </div>
       </Card>
 
+      {/* Tab Switcher */}
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={() => setActiveTab("outward")}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all border ${
+            activeTab === "outward"
+              ? "bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/20"
+              : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50"
+          }`}
+        >
+          <ArrowUpRight size={16} />
+          Outward Challans
+          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${
+            activeTab === "outward" ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+          }`}>
+            {filteredOutward.length}
+          </span>
+        </button>
+        <button
+          onClick={() => setActiveTab("inward")}
+          className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-medium transition-all border ${
+            activeTab === "inward"
+              ? "bg-teal-600 text-white border-teal-600 shadow-lg shadow-teal-500/20"
+              : "bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50"
+          }`}
+        >
+          <ArrowDownLeft size={16} />
+          Inward Challans
+          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${
+            activeTab === "inward" ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-500"
+          }`}>
+            {filteredInward.length}
+          </span>
+        </button>
+      </div>
+
       <Card>
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="animate-spin text-indigo-600 mb-4" size={32} />
             <p className="text-xs text-slate-400">Loading challans...</p>
           </div>
-        ) : (
+        ) : activeTab === "outward" ? (
           <DataTable
             columns={outwardColumns}
-            data={outwardChallans.filter(c => selectedProject === "all" || c.root_card_id === selectedProject)}
+            data={filteredOutward}
             emptyMessage="No outward challans found"
+          />
+        ) : (
+          <DataTable
+            columns={inwardColumns}
+            data={filteredInward}
+            emptyMessage="No inward challans found"
           />
         )}
       </Card>
@@ -348,7 +438,10 @@ const OutsourcingChallansPage = ({ isAccountantView = false }) => {
           setSelectedOutwardChallan(null);
         }}
         outwardChallan={selectedOutwardChallan}
-        onSuccess={fetchData}
+        onSuccess={() => {
+          fetchData();
+          setActiveTab("inward");
+        }}
       />
     </div>
   );

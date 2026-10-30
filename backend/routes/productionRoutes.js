@@ -62,12 +62,14 @@ router.get('/labor/projects-summary', productionController.getLaborProjectsSumma
 router.get('/labor/project/:id/logs', productionController.getProjectLaborLogs);
 
 // Outward Challan Routes
+router.get('/outward-challans/next-number', productionController.getNextChallanNumber);
 router.post('/outward-challans', productionController.createOutwardChallan);
 router.get('/outward-challans', productionController.getOutwardChallans);
 router.get('/outward-challans/:id', productionController.getOutwardChallanDetails);
 router.delete('/outward-challans/:id', productionController.deleteOutwardChallan);
 
 // Inward Challan Routes
+router.get('/inward-challans/next-number', productionController.getNextInwardChallanNumber);
 router.post('/inward-challans', productionController.createInwardChallan);
 router.get('/inward-challans', productionController.getInwardChallans);
 router.get('/inward-challans/:id', productionController.getInwardChallanDetails);

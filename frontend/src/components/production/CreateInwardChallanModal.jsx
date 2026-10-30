@@ -29,6 +29,13 @@ const CreateInwardChallanModal = ({ isOpen, onClose, outwardChallan, onSuccess }
   useEffect(() => {
     if (isOpen && outwardChallan) {
       fetchOutwardDetails();
+      axios.get('/production/inward-challans/next-number')
+        .then(res => {
+          if (res.data?.success && res.data?.challan_no) {
+            setFormData(prev => ({ ...prev, challan_no: prev.challan_no || res.data.challan_no }));
+          }
+        })
+        .catch(err => console.error('Error fetching next inward challan number:', err));
     }
   }, [isOpen, outwardChallan]);
 
