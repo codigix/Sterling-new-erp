@@ -810,9 +810,11 @@ exports.getReleasedMaterialsForMCR = async (req, res) => {
     const [entries] = await db.query(`
       SELECT se.*, rc.id as root_card_id
       FROM stock_entries se 
-      LEFT JOIN root_cards rc ON se.project_name = rc.project_name
-      WHERE se.entry_type = 'Material Issue' 
-      AND se.project_name IN (?)
+      LEFT JOIN root_cards rc ON TRIM(se.project_name) = TRIM(rc.project_name)
+      WHERE se.entry_type = 'Material Issue'
+      -- Trim both sides: many project names are stored with a trailing space, and this database's
+      -- collation (utf8mb4_0900_ai_ci) does not ignore trailing spaces when comparing
+      AND TRIM(se.project_name) IN (?)
       ORDER BY se.created_at DESC
     `, [names]);
 
@@ -825,7 +827,7 @@ exports.getReleasedMaterialsForMCR = async (req, res) => {
       const [items] = await db.query(`
         SELECT sei.*, COALESCE(bm.item_group, sei.item_group) AS item_group, bm.material_grade
         FROM stock_entry_items sei
-        LEFT JOIN boms b ON b.root_card_id = (SELECT id FROM root_cards WHERE project_name = ? LIMIT 1)
+        LEFT JOIN boms b ON b.root_card_id = (SELECT id FROM root_cards WHERE TRIM(project_name) = TRIM(?) LIMIT 1)
         LEFT JOIN bom_materials bm ON bm.bom_id = b.id AND bm.item_name = sei.item_name
         WHERE sei.stock_entry_id = ?
       `, [entry.project_name, entry.id]);
